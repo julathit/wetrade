@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile | WeTAX!</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>TaxCalc</h2>
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="transaction.html">Transactions</a>
+        <a href="account.html">Accounts</a>
+        <a href="profile.html" class="active">Profile</a>
+        <a href="admin.html">Admin</a>
+        <a href="terminal.html">Terminal</a>
+        <a href="index.html" id="logoutBtn">Logout</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <h1>Profile</h1>
+      </header>
+
+      <section class="form-card">
+        <h2>User Info</h2>
+        <label>Name</label>
+        <input type="text" id="pName" placeholder="Your name">
+        <label>Email</label>
+        <input type="email" id="pEmail" placeholder="Your email" disabled>
+        <button id="saveProfileBtn">Save</button>
+      </section>
+
+      <section class="form-card">
+        <h2>Security</h2>
+        <label>New Password</label>
+        <input type="password" id="newPassword" placeholder="New password">
+        <button id="changePasswordBtn">Change Password</button>
+      </section>
+    </main>
+  </div>
+  <script src="js/main.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/profile.js"></script>
+  <div id="toast-container"></div>
+</body>
+</html>

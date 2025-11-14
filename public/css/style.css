@@ -1,0 +1,375 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f4f6f8;
+  color: #333;
+}
+
+/* Layout */
+.layout {
+  display: flex;
+  height: 100vh;
+}
+.sidebar {
+  width: 220px;
+  background: #0163FF;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+.sidebar h2 {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+.sidebar nav a {
+  color: white;
+  text-decoration: none;
+  padding: 0.6rem 1rem;
+  display: block;
+  border-radius: 8px;
+  margin-bottom: 0.3rem;
+}
+.sidebar nav a.active, .sidebar nav a:hover {
+  background: #334155;
+}
+
+.main-content {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  background: white;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 1.5rem;
+}
+
+.topbar h1 {
+  margin-top: 0.67em;
+  margin-bottom: 0.67em;
+  font-size: 1.5rem; /* optional: adjust size */
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.card {
+  background: white;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  text-align: center;
+}
+.card h3 {
+  margin: 0;
+  color: #555;
+}
+.card p {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #222;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
+th, td {
+  padding: 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+th {
+  background: #f9fafb;
+  color: #555;
+}
+
+.hidden {
+  display: none;
+}
+
+.show {
+  display: block;
+}
+
+select {
+  padding: 5px;
+  /* border-radius: 8px; */
+  /* border: 1px solid #555; */
+  /* background-color: #f0f0f0; */
+  font-size: 16px;
+  color: #333; 
+  background: white;
+  /* padding: 1rem; */
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+option {
+  background-color: white;
+  color: black;
+}
+
+/* Some browsers respect these */
+option:hover {
+  background-color: #eee;
+}
+
+/* Toast container — bottom-left corner */
+#toast-container {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 9999;
+}
+
+/* Individual toast style */
+.toast {
+  background: rgba(50, 50, 50, 0.9);
+  color: #fff;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transform: translateY(20px);
+  animation: toast-in 0s forwards;
+}
+
+/* Entrance animation */
+@keyframes toast-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Exit animation */
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+.form-container {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  text-align: center;
+  width: 30%;
+  margin: auto;
+}
+
+.form-container input {
+  display: block;
+  width: 100%;
+  padding: 0.7rem;
+  margin: 0.5rem 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+.form-container button {
+  background: #0066ff;
+  color: white;
+  border: none;
+  padding: 0.7rem;
+  width: 100%;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 1rem;
+}
+
+.submitbutton {
+  /* padding: 10px 20px; */
+  /* border: none; */
+  /* border-radius: 4px; */
+  background-color: grey;
+  /* color: white; */
+  cursor: not-allowed;
+  transition: background-color 0.3s;
+}
+
+.submitbutton.enabled {
+  background: #0066ff;
+  /* color: white; */
+  cursor: pointer;
+}
+
+.submitbutton.enabled:hover {
+  background: #0052cc;
+}
+
+.deletebutton {
+  background-color: red !important;
+  color: white;
+  border: none;
+  padding: 0.7rem;
+  width: 100%;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 1rem;
+}
+
+.editbutton {
+  background-color: orange;
+  color: white;
+  border: none;
+  padding: 0.7rem;
+  width: 100%;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.addbutton {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 0.7rem;
+  width: 20%;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  /* margin-top: 2rem;
+  margin-bottom: 0rem; */
+}
+/* 
+-------------------------------- */
+/* Admin page */
+
+
+
+
+/* --- Terminal Specific Styles --- */
+
+#admin-terminal {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.terminal-container {
+    display: flex;
+    flex-direction: column;
+    /* Adjust height to fill space minus topbar and padding */
+    height: calc(100vh - 150px); 
+    background: #1e1e1e; /* Dark background */
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    padding: 1rem;
+    font-family: 'Consolas', 'Courier New', monospace; /* Monospace font */
+}
+
+.terminal-output {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 0.5rem;
+    color: #00ffaa; /* Bright color for output text */
+    font-size: 0.95rem;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    word-break: break-word;
+    scrollbar-color: #333 #1e1e1e;
+    scrollbar-width: thin;
+}
+
+.terminal-output p {
+    margin: 0;
+    padding-bottom: 0.2rem;
+}
+
+/* Old: gap: 0.5rem; */
+.terminal-input-area {
+    display: flex;
+    gap: 1.5rem; /* Increased spacing here */
+    padding-top: 0.5rem;
+    border-top: 1px solid #333;
+}
+
+.terminal-input-box {
+    flex-grow: 1;
+}
+
+.terminal-input {
+    width: 100%;
+    min-height: 300px;
+    background: #333; /* Input background */
+    color: #00ffaa;
+    border: 1px solid #00ffaa;
+    border-radius: 6px;
+    padding: 0.5rem;
+    resize: none;
+    font-family: inherit;
+    font-size: 1rem;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 255, 170, 0.3); 
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.terminal-input:focus {
+    border-color: #00ffdd;
+    box-shadow: 0 0 10px rgba(0, 255, 221, 0.5);
+}
+
+.send-button {
+    flex-shrink: 0;
+    background: #00ffaa; /* Accent color */
+    color: #1e1e1e;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    align-self: flex-end; 
+    transition: background-color 0.2s, box-shadow 0.2s;
+    height: 80px;
+}
+
+.send-button:hover {
+    background: #00cc88;
+    box-shadow: 0 0 8px rgba(0, 255, 170, 0.6);
+}
+
+/* Custom Scrollbar (Webkit browsers) */
+.terminal-output::-webkit-scrollbar {
+    width: 8px;
+}
+
+.terminal-output::-webkit-scrollbar-track {
+    background: #1e1e1e;
+}
+
+.terminal-output::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+}
+
+.terminal-output::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

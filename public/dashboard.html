@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | WeTAX!</title>
+  <base href="/dashboard/">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>WeTAX</h2>
+      <nav>
+        <a href="dashboard.html" class="active">Dashboard</a>
+        <a href="transaction.html">Transactions</a>
+        <a href="account.html">Accounts</a>
+        <a href="profile.html">Profile</a>
+        <a href="admin.html">Admin</a>
+        <a href="terminal.html">Terminal</a>
+        <a href="#" id="logoutBtn">Logout</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <h1>Dashboard</h1>
+      </header>
+
+      <section class="cards">
+        <div class="card">
+          <h3>Total Asset</h3>
+          <p id="totalIncome">$0</p>
+        </div>
+        <div class="card">
+          <h3>Total Expenses</h3>
+          <p id="totalExpenses">$0</p>
+        </div>
+        <div class="card">
+          <h3>Tax Payable</h3>
+          <p id="totalTax">$0</p>
+        </div>
+      </section>
+
+      <section id="transactions-overview" class="hidden">
+        <h2>Recent Transactions <select id="account_option" class="dropdown"></select> </h2>
+        <table id="recentTransactions">
+          <thead>
+            <tr>
+              <th>Date</th><th>Type</th><th>Symbol</th><th>Unit</th><th>Unit Price</th><th>Gross Amount</th><th>Fee</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+      <p id="no-account-message" class="hidden">You don't have any tax account yet. <a href="account.html">Create an tax account</a></p>
+    </main>
+  </div>
+  <script src="js/dashboard.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/utils.js"></script>
+  <div id="toast-container"></div>
+</body>
+</html>

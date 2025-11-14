@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions | WeTAX!</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <h2>WeTAX</h2>
+            <nav>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="transaction.html" class="active">Transactions</a>
+                <a href="account.html">Accounts</a>
+                <a href="profile.html">Profile</a>
+                <a href="admin.html">Admin</a>
+                <a href="terminal.html">Terminal</a>
+                <a href="index.html" id="logoutBtn">Logout</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <h1>Transactions</h1>
+
+                    <select id="account_option" class="dropdown hidden"></select>
+                    <select id="transaction_option" class="dropdown hidden">
+                        <option value="trade_us" selected>US Assets</option>
+                        <option value="trade_th">TH Assets</option>
+                        <option value="exchange">Exchange</option>
+                    </select>
+                </div>
+                <!-- <a href="add-transaction.html" class="btn">+ Add Transaction</a>  -->
+                <button id="addTransactionBtn" class="btn addbutton">+ Add Transaction</button>
+            </header>
+
+            <section id="transactions-overview" class="hidden">
+                <table id="transactionTable">
+                    <thead></thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+            <p id="no-account-message" class="hidden">You don't have any tax account yet. <a href="account.html">Create an tax account</a></p>
+        </main>
+    </div>
+    <script src="js/main.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/transaction.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <div id="toast-container"></div>
+</body>
+</html>

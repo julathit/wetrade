@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accounts | WeTAX!</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>WeTAX!</h2>
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="transaction.html">Transactions</a>
+        <a href="account.html" class="active">Accounts</a>
+        <a href="profile.html">Profile</a>
+        <a href="admin.html">Admin</a>
+        <a href="terminal.html">Terminal</a>
+        <a href="index.html" id="logoutBtn">Logout</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <h1>Accounts</h1>
+        <button id="addAccountBtn" class="btn addbutton">+ Add Account</button>
+      </header>
+
+      <section>
+        <table id="accountTable">
+          <colgroup>
+            <col style="width: 30%;">
+            <col style="width: 15%;">
+            <col style="width: 20%;">
+            <col style="width: 20%;">
+            <col style="width: 10%;">
+          </colgroup>
+          <thead>
+            <tr><th>Name</th><th>Tax year</th><th>Amount THB</th><th>Amount USD</th><th>Edit</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+  <script src="js/main.js"></script>
+  <script src="js/account.js"></script>
+  <script src="js/utils.js"></script>
+  <div id="toast-container"></div>
+</body>
+</html>

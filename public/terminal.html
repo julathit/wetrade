@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal | WeTAX!</title>
+    <base href="/dashboard/">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <h2>WeTAX Admin</h2>
+            <nav>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="transaction.html">Transactions</a>
+                <a href="account.html">Accounts</a>
+                <a href="profile.html">Profile</a>
+                <a href="admin.html">Admin</a>
+                <a href="terminal.html" class="active">Terminal</a>
+                <a href="index.html" id="logoutBtn">Logout</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <h1>System Terminal</h1>
+            </header>
+
+            <section id="admin-terminal">
+                <div class="terminal-container">
+                    <div id="terminalOutput" class="terminal-output">
+                        <p>WeTAX Terminal v1.0</p>
+                    </div>
+
+                    <div class="terminal-input-area">
+                        <div class="terminal-input-box">
+                            <textarea id="terminalInput" class="terminal-input" rows="5" autofocus></textarea>
+                        </div>
+                        
+                        <button id="sendBtn" class="send-button">Send</button>
+                    </div>
+                    </div>
+            </section>
+        </main>
+    </div>
+    <script src="js/terminal.js"></script> 
+    <script src="js/main.js"></script>
+    <script src="js/utils.js"></script>
+    <div id="toast-container"></div>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Transaction | WeTAX!</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <h2>WeTAX</h2>
+            <nav>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="transaction.html" class="active">Transactions</a>
+                <a href="account.html">Accounts</a>
+                <a href="profile.html">Profile</a>
+                <a href="admin.html">Admin</a>
+                <a href="terminal.html">Terminal</a>
+                <a href="index.html" id="logoutBtn">Logout</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <h1>Add Transaction</h1>
+            </header>
+
+            <!-- <form id="transactionForm"> -->
+            <label for="tOption">Transaction Option:</label>
+            <select id="tOption" name="transaction_option" required>
+                <option value="">-- Select Option --</option>
+                <option value="exchange">Exchange</option>
+                <option value="trade_us">Trade US</option>
+                <option value="trade_th">Trade TH</option>
+            </select>
+
+            <div id="dynamicFields"></div>
+
+            <button id="savetransaction">Save Transaction</button>
+            <!-- </form> -->
+            
+            <script src="js/add-transaction.js"></script>
+
+
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/main.js"></script>
+    <script src="js/utils.js"></script>
+    <div id="toast-container"></div>
+</body>
+</html>
