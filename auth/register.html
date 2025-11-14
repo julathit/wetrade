@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In | WeTAX!</title>
+  <base href="/login/">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+</head>
+<body class="auth-page">
+  <div class="auth-container">
+    <img src="favicon.ico" alt="WeTAX! Logo" width="100"/>
+    <h1>WeTAX! Sign Up</h1>
+    <form id="registerForm">
+      <input type="text" id="username" placeholder="Username" required />
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
+      <span id="message" class="text hidden">Passwords do not match!</span>
+      <button type="submit" id="registerButton">Sign Up</button>
+    </form>
+    <p class="small">Already has an account? <a href="index.html">Log in</a></p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    password = document.getElementById('password');
+    confirmPassword = document.getElementById('confirmPassword');
+    registerButton = document.getElementById('registerButton');
+    message = document.getElementById('message');
+
+    function checkPasswords() {
+        // Enable button only if both passwords match and are not empty
+        if (password.value && password.value === confirmPassword.value) {
+            registerButton.disabled = false;
+            registerButton.classList.add('enabled');
+            registerButton.classList.remove('disabled');
+
+            confirmPassword.classList.add('success');
+            confirmPassword.classList.remove('error');
+
+            message.classList.add('hidden');
+        } else {
+            registerButton.disabled = true;
+            registerButton.classList.remove('enabled');
+            registerButton.classList.add('disabled');
+
+            confirmPassword.classList.add('error');
+            confirmPassword.classList.remove('success');
+
+            message.classList.remove('hidden');
+        }
+    }
+
+    // Listen for input events on both fields
+    password.addEventListener('input', checkPasswords);
+    confirmPassword.addEventListener('input', checkPasswords);
+
+    document.getElementById('registerForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      
+      const formData = new FormData(this);
+
+      username = document.getElementById("username").value;
+      email = document.getElementById("email").value;
+
+      console.log(username, email, password.value);
+
+      fetch('/api/register', {
+        method: 'POST',
+        body: JSON.stringify({
+          username,
+          email,
+          password: password.value
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      })
+      .then(response => response.json().then(data => ({ status: response.status, data })))
+      .then(({ status, data }) => {
+        if (status === 400) {
+          if (data.message === 'Invalid email') {
+            Swal.fire({ 
+              icon: 'error', 
+              title: 'Invalid email', 
+              text: "Your email address is not valid." 
+            });
+            throw new Error(data.message);
+          } else if (data.message === 'Password too short') {
+            Swal.fire({ 
+              icon: 'error', 
+              title: 'Password too short', 
+              text: 'Password must be at least 8 characters long and include letters and numbers.' 
+            });
+            throw new Error(data.message);
+          } else if (data.message === 'Invalid username') {
+            Swal.fire({ 
+              icon: 'error', 
+              title: 'Invalid username', 
+              text: 'Username must be at least 3 characters long and contain only letters, numbers, and underscores.' 
+            });
+            throw new Error(data.message);
+          } else {
+            throw new Error(data.message || 'Bad Request');
+          }
+        } else if (status === 409) {
+          Swal.fire({ 
+            icon: 'error', 
+            title: 'Registration Failed', 
+            text: 'Username or email already exists.' 
+          });
+          throw new Error(data.message || 'Conflict');
+        } else if (!status.toString().startsWith('2')) {
+          throw new Error(data.message || 'Unknown error');
+        }
+        return data;
+      })
+      .then(data => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Sign up successful',
+          html: 'Your account has been created successfully.<br>Redirecting to login page in <b>2</b> seconds.',
+          timer: 2000,
+          didOpen: () => {
+            const b = Swal.getHtmlContainer().querySelector('b');
+            const countdown = setInterval(() => {
+              b.textContent = Math.ceil(Swal.getTimerLeft() / 1000);
+            }, 1000);
+            Swal.showLoading();
+          }
+        }).then(() => {
+          window.location.href = '/login';
+        });
+      })
+      .catch(err => console.error('Error:', err.message));
+    });
+  </script>
+
+</body>
+</html>

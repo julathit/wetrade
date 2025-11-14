@@ -1,0 +1,101 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f4f6f8;
+  color: #333;
+}
+
+/* Auth Page */
+.auth-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+.auth-container {
+  background: white;
+  padding: 2rem 3rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  text-align: center;
+  width: 50;
+}
+.auth-container input {
+  display: block;
+  width: 100%;
+  padding: 0.7rem;
+  margin: 0.5rem 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  /* outline: none; */
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+.auth-container button {
+  background: #0066ff;
+  color: white;
+  border: none;
+  padding: 0.7rem;
+  width: 100%;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 1rem;
+}
+
+/* input {
+  padding: 8px;
+  margin: 5px 0;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+} */
+
+input.error {
+  border-color: red;
+}
+
+input.error:focus {
+  /* border: 2px solid darkred !important; */
+  box-shadow: 0 0 5px red;
+}
+
+input.success {
+  border-color: green;
+}
+
+input.success:focus {
+  /* border: 2px solid darkgreen !important; */
+  box-shadow: 0 0 5px green;
+}
+
+.text {
+  font-size: 0.8em;
+  margin-top: 5px;
+}
+
+.hidden {
+  display: none;
+  color: red;
+  font-size: 0.9em;
+}
+
+
+#registerButton {
+  /* padding: 10px 20px; */
+  /* border: none; */
+  /* border-radius: 4px; */
+  background-color: grey;
+  /* color: white; */
+  cursor: not-allowed;
+  transition: background-color 0.3s;
+}
+
+#registerButton.enabled {
+  background: #0066ff;
+  /* color: white; */
+  cursor: pointer;
+}
+
+#registerButton.enabled:hover {
+  background: #0052cc;
+}
