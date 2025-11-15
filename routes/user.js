@@ -34,7 +34,7 @@ router.get('/account/:id', (req, res) => {
 
 router.get('/account_adm', (req, res) => {
 
-  db.query('select ac.id, ac.username, us.email from account as ac left join user as us on ac.username = us.username', (err, results) => {
+  db.query('select ac.id, ac.username, us.email from account as ac left join user as us on ac.username = us.username;', (err, results) => {
     if (err) {
       return res.status(500).json({ error: 'Database query failed' });
     }
@@ -42,7 +42,7 @@ router.get('/account_adm', (req, res) => {
   });
 });
 
-router.get('/')
+// router.get('/')
 
 router.post('/account', (req, res) => {
   if (!req.user || !req.user.username) {
