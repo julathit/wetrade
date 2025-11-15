@@ -25,6 +25,11 @@
         <main class="main-content">
             <header class="topbar">
                 <h1>Admin Dashboard: Users Overview</h1>
+                <select id="transaction_option" class="dropdown hidden">
+                    <option value="trade_us" selected>US Assets</option>
+                    <option value="trade_th">TH Assets</option>
+                    <option value="exchange">Exchange</option>
+                </select>
             </header>
 
             <section id="user-overview">
@@ -43,6 +48,8 @@
                 </table>
             </section>
 
+            
+
             <section id="account-detail" class="hidden">
                 <h2 id="accountHeader">Accounts for [Username]</h2>
                 <button onclick="showUserTable()">← Back to Users</button>
@@ -50,8 +57,9 @@
                     <thead>
                         <tr>
                             <th>Account ID</th>
-                            <th>Name</th>
-                            <th>Currency</th>
+                            <th>username</th>
+                            <th>Amount th</th>
+                            <th>Amount us</th>
                             <th>Created On</th>
                             <th>Action</th>
                         </tr>

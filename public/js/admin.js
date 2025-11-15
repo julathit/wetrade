@@ -42,7 +42,7 @@ function fetchUsers() {
     const tbody = document.getElementById('userTable').getElementsByTagName('tbody')[0];
     tbody.innerHTML = '<tr><td colspan="4" class="text-center">Loading users...</td></tr>';
 
-    fetch('/api/user/account_adm') // This is the route you provided
+    fetch('/api/user/user_adm') // This is the route you provided
         .then(response => {
             if (!response.ok) throw new Error('Network response was not ok');
             return response.json();
@@ -109,8 +109,10 @@ function renderAccountTable(accounts, username) {
         const row = tbody.insertRow();
         row.insertCell().textContent = account.id;
         row.insertCell().textContent = account.name;
-        row.insertCell().textContent = account.currency;
-        row.insertCell().textContent = new Date(account.created).toLocaleDateString(); // Format date
+        row.insertCell().textContent = account.amount_thb;
+        row.insertCell().textContent = account.amount_usd;
+        row.insertCell().textContent = account.tax_year;
+        // row.insertCell().textContent = new Date(account.created).toLocaleDateString(); // Format date
 
         const actionCell = row.insertCell();
 
@@ -166,7 +168,7 @@ function renderTransactionTable(transactions, accountName) {
 
 // REFACTORED: Now fetches accounts for a specific user from a new API route.
 function viewAccounts(userId, username) {
-    console.log(`Fetching accounts for user: ${username} (ID: ${userId})`);
+    console.log(username);
     currentUserId = userId; // Set global state
     currentUsername = username;
 
@@ -175,7 +177,7 @@ function viewAccounts(userId, username) {
     showAccountTable(); // Show the account section
 
     // *** YOU MUST CREATE THIS API ROUTE ON YOUR BACKEND ***
-    fetch(`/api/users/${userId}/accounts`)
+    fetch(`/api/user/accountGet_adm/${username}`)
         .then(response => {
             if (!response.ok) throw new Error('Network response was not ok');
             return response.json();

@@ -32,7 +32,7 @@ router.get('/account/:id', (req, res) => {
   });
 });
 
-router.get('/account_adm', (req, res) => {
+router.get('/user_adm', (req, res) => {
 
   db.query('SELECT ROW_NUMBER() OVER (ORDER BY username) AS id, username, email FROM user;', (err, results) => {
     if (err) {
@@ -42,10 +42,24 @@ router.get('/account_adm', (req, res) => {
   });
 });
 
-
 // router.get('')
 
-// router.get('/')
+router.get('/accountGet_adm/:user', (req, res) => {
+  const user = req.params.user;
+  
+  db.query('select ac.id, ac.name, ca.amount_thb, ca.amount_usd, ac.tax_year from account as ac right join cash as ca on ac.id = ca.account_id  where ac.username = ?;', [user], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database query failed' });
+    }
+    res.json(results);
+  });
+})
+
+router.get('/transactionGet_adm/:id', (req, res) => {
+  const id = req.params.id
+
+  db.query()
+})
 
 router.post('/account', (req, res) => {
   if (!req.user || !req.user.username) {
