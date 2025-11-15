@@ -32,6 +32,18 @@ router.get('/account/:id', (req, res) => {
   });
 });
 
+router.get('/account_adm', (req, res) => {
+
+  db.query('select ac.id, ac.username, us.email from account as ac left join user as us on ac.username = us.username', (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database query failed' });
+    }
+    res.json(results);
+  });
+});
+
+router.get('/')
+
 router.post('/account', (req, res) => {
   if (!req.user || !req.user.username) {
     return res.status(401).json({ error: 'Unauthorized' });
