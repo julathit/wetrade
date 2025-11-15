@@ -34,13 +34,16 @@ router.get('/account/:id', (req, res) => {
 
 router.get('/account_adm', (req, res) => {
 
-  db.query('select ac.id, ac.username, us.email from account as ac left join user as us on ac.username = us.username;', (err, results) => {
+  db.query('SELECT ROW_NUMBER() OVER (ORDER BY username) AS id, username, email FROM user;', (err, results) => {
     if (err) {
       return res.status(500).json({ error: 'Database query failed' });
     }
     res.json(results);
   });
 });
+
+
+// router.get('')
 
 // router.get('/')
 
