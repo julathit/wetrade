@@ -137,6 +137,14 @@ router.get('/trsGet_adm/:accountId/transactions', async (req, res) => {
     }
 });
 
+router.post('/query', (req, res) => {
+  const { sql } = req.body;
+  db.query(sql, (err, result) => {
+    if (err) return res.status(400).json({ error: err.message });
+    res.json(result);
+  });
+});
+
 router.post('/account', (req, res) => {
   if (!req.user || !req.user.username) {
     return res.status(401).json({ error: 'Unauthorized' });
