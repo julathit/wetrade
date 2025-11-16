@@ -61,6 +61,82 @@ router.get('/transactionGet_adm/:id', (req, res) => {
   db.query()
 })
 
+router.get('/trsGet_adm/:accountId/transactions', async (req, res) => {
+    // console.log("Transaction request received");
+    try {
+        const { accountId } = req.params;
+        const { type } = req.query; // Get transaction type from query parameter
+
+        // Validate accountId
+        if (!accountId || isNaN(accountId)) {
+            return res.status(400).json({ 
+                error: 'Invalid account ID' 
+            });
+        }
+
+        // Validate transaction type
+        const validTypes = ['trade_us', 'trade_th', 'exchange'];
+        if (!type || !validTypes.includes(type)) {
+            return res.status(400).json({ 
+                error: 'Invalid transaction type. Must be: trade_us, trade_th, or exchange' 
+            });
+        }
+
+        let transactions = [];
+
+        // Query based on transaction type
+        if (type === 'trade_us') {
+            // Query for US Assets transactions
+            const query = `
+                select transaction_date, transaction_type, st.ticker_symbol ,unit,unit_price,gross_amount_usd,fee from transaction_trade_us 
+                left join securities as st on stock_id = st.securities_id
+                where account_cash_id = ?;
+            `;
+            
+            // FIX: Use db.promise().query() instead of db.query()
+            const [rows] = await db.promise().query(query, [accountId]);
+            transactions = rows;
+
+        } else if (type === 'trade_th') {
+            // Query for TH Assets transactions
+            const query = `
+                select transaction_date, transaction_type, st.ticker_symbol ,unit,unit_price,gross_amount_thb,fee from transaction_trade_th
+                left join securities as st on stock_id = st.securities_id;
+                where account_cash_id = ?;
+            `;
+            const [rows] = await db.promise().query(query, [accountId]);
+            transactions = rows;
+
+        } else if (type === 'exchange') {
+            // Query for Exchange transactions
+            console.log('Fetching exchange transactions');
+            const query = `
+                SELECT 
+                    transaction_date as date,
+                    transaction_type as type,
+                    amount_usd,
+                    amount_thb,
+                    exchange_rate
+                FROM transaction_exchange
+                WHERE account_cash_id = ?
+                ORDER BY transaction_date DESC
+            `;
+            const [rows] = await db.promise().query(query, [accountId]);
+            transactions = rows;
+        }
+
+        // Return the transactions
+        res.json(transactions);
+
+    } catch (error) {
+        console.error('Error fetching transactions:', error);
+        res.status(500).json({ 
+            error: 'Failed to fetch transactions',
+            details: error.message 
+        });
+    }
+});
+
 router.post('/account', (req, res) => {
   if (!req.user || !req.user.username) {
     return res.status(401).json({ error: 'Unauthorized' });
