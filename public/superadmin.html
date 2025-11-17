@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superadmin Dashboard | WeTax!</title>
+    <base href="/dashboard/">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <h2>WeTax! Superadmin</h2>
+            <nav>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="transaction.html">Transactions</a>
+                <a href="account.html">Accounts</a>
+                <a href="profile.html">Profile</a>
+                <a id="adminLink" href="admin.html" class="hidden">Admin</a>
+                <a id="superadminLink" href="superadmin.html" class="hidden active">Superadmin Panel</a>
+                <a href="index.html" id="logoutBtn">Logout</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <section id="user-overview">
+                <header class="topbar">
+                    <h1>Superadmin Dashboard | All Users</h1>
+                </header>
+                <table id="userTable">
+                    <colgroup>
+                        <col style="width: 40%;">
+                        <col style="width: 35%;">
+                        <col style="width: 25%;">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+    <script src="js/superadmin.js"></script> 
+    <script src="js/main.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <div id="toast-container"></div>
+</body>
+</html>

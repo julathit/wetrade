@@ -40,19 +40,6 @@ router.delete('/user', async (req, res) => {
         return res.status(400).json({ message: 'Username is required' });
     }
 
-    dbadmin.query('SELECT role FROM user WHERE username = ?', [req_username], (err, results) => {
-        if (err) {
-            console.error('Error checking user role:', err);
-            return res.status(500).json({ message: 'Internal server error', error: err });
-        }
-        if (results.length > 0) {
-            const role = results[0].role;
-            if (role === 'admin' || role === 'superadmin') {
-                return res.status(403).json({ message: 'Cannot delete admin or superadmin user' });
-            }
-        }
-    });
-
     dbadmin.query('DELETE FROM user WHERE username = ?', [req_username], (err, result) => {
         if (err) {
             console.error('Error deleting user:', err);
@@ -120,11 +107,11 @@ router.put('/change-role', async (req, res) => {
         return res.status(400).json({ message: 'Username and new role are required' });
     }
 
-    if (!['user', 'admin', 'superadmin'].includes(newRole)) {
-        return res.status(400).json({ message: 'Invalid role specified' });
+    if (!['user', 'admin'].includes(newRole)) {
+        return res.status(400).json({ message: 'Invalid role specified. Only "user" and "admin" roles are allowed.' });
     }
 
-    dbsuperadmin.query('UPDATE user SET role = ? WHERE username = ?', [newRole, username], (err, result) => {
+    dbsuperadmin.query('UPDATE role SET role = ? WHERE username = ?', [newRole, username], (err, result) => {
         if (err) {
             console.error('Error updating user role:', err);
             return res.status(500).json({ message: 'Internal server error', error: err });

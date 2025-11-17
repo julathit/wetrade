@@ -97,7 +97,6 @@ router.put('/account/:id', (req, res) => {
       }
       
       db.query(query, [id, amount_thb, transaction_date], (err, results) => {
-        console.log(amount_thb);
         if (err) {
           return res.status(500).json({ error: 'Database query failed', details: err });
         }
@@ -202,25 +201,25 @@ router.get('/account/:id/transaction', (req, res) => {
   }
 
   if(security_type == 'trade_us') {
-    var query_with_limit = 'SELECT transaction_id, transaction_type, ticker_symbol, unit, unit_price, gross_amount_usd, transaction_date, fee, vat FROM transaction_trade_us t INNER JOIN securities s ON t.stock_id = s.securities_id INNER JOIN account a ON a.id = s.account_id WHERE a.username = ? AND account_id = ?;';
+    var query_with_limit = 'SELECT transaction_id, transaction_type, ticker_symbol, unit, unit_price, gross_amount_usd, transaction_date, fee, vat FROM transaction_trade_us t INNER JOIN securities s ON t.stock_id = s.securities_id INNER JOIN account a ON a.id = s.account_id WHERE a.username = ? AND account_id = ? ORDER BY transaction_date DESC;';
     
     if (queryLimit > 0) {
-      query_with_limit = 'SELECT transaction_id, transaction_type, ticker_symbol, unit, unit_price, gross_amount_usd, transaction_date, fee, vat FROM transaction_trade_us t INNER JOIN securities s ON t.stock_id = s.securities_id INNER JOIN account a ON a.id = s.account_id WHERE a.username = ? AND account_id = ? LIMIT ?;';
+      query_with_limit = 'SELECT transaction_id, transaction_type, ticker_symbol, unit, unit_price, gross_amount_usd, transaction_date, fee, vat FROM transaction_trade_us t INNER JOIN securities s ON t.stock_id = s.securities_id INNER JOIN account a ON a.id = s.account_id WHERE a.username = ? AND account_id = ? ORDER BY transaction_date DESC LIMIT ?;';
     }
 
   } else if (security_type == 'trade_th') {
-    var query_with_limit = 'SELECT transaction_id, transaction_type, ticker_symbol, unit, unit_price, gross_amount_thb, transaction_date, fee, vat FROM transaction_trade_th t INNER JOIN securities s ON t.stock_id = s.securities_id INNER JOIN account a ON a.id = s.account_id WHERE a.username = ? AND account_id = ?;';
+    var query_with_limit = 'SELECT transaction_id, transaction_type, ticker_symbol, unit, unit_price, gross_amount_thb, transaction_date, fee, vat, COALESCE(st.type, mf.type) AS security_type FROM transaction_trade_th t INNER JOIN securities s ON t.stock_id = s.securities_id INNER JOIN account a ON a.id = s.account_id LEFT JOIN stock st ON st.securities_id = s.securities_id LEFT JOIN mutual_fund mf ON mf.securities_id = s.securities_id WHERE a.username = ? AND account_id = ? ORDER BY transaction_date DESC;';
     
     if (queryLimit > 0) {
-      query_with_limit = 'SELECT transaction_id, transaction_type, ticker_symbol, unit, unit_price, gross_amount_thb, transaction_date, fee, vat FROM transaction_trade_th t INNER JOIN securities s ON t.stock_id = s.securities_id INNER JOIN account a ON a.id = s.account_id WHERE a.username = ? AND account_id = ? LIMIT ?;';
+      query_with_limit = 'SELECT transaction_id, transaction_type, ticker_symbol, unit, unit_price, gross_amount_thb, transaction_date, fee, vat, COALESCE(st.type, mf.type) AS security_type FROM transaction_trade_th t INNER JOIN securities s ON t.stock_id = s.securities_id INNER JOIN account a ON a.id = s.account_id LEFT JOIN stock st ON st.securities_id = s.securities_id LEFT JOIN mutual_fund mf ON mf.securities_id = s.securities_id WHERE a.username = ? AND account_id = ? ORDER BY transaction_date DESC LIMIT ?;';
     }
   } else if (security_type == 'exchange') {
 
     //transaction_type, amount_thb, amount_usd, exchange_rate, transaction_date, account_cash_id
-    var query_with_limit = 'SELECT transaction_id, transaction_type, t.amount_thb, t.amount_usd, exchange_rate, transaction_date FROM transaction_exchange t INNER JOIN cash c ON t.account_cash_id = c.account_id INNER JOIN account a ON a.id = c.account_id WHERE a.username = ? AND account_id = ?;';
+    var query_with_limit = 'SELECT transaction_id, transaction_type, t.amount_thb, t.amount_usd, exchange_rate, transaction_date FROM transaction_exchange t INNER JOIN cash c ON t.account_cash_id = c.account_id INNER JOIN account a ON a.id = c.account_id WHERE a.username = ? AND account_id = ? ORDER BY transaction_date DESC;';
     
     if (queryLimit > 0) {
-      query_with_limit = 'SELECT transaction_id, transaction_type, t.amount_thb, t.amount_usd, exchange_rate, transaction_date FROM transaction_exchange t INNER JOIN cash c ON t.account_cash_id = c.account_id INNER JOIN account a ON a.id = c.account_id WHERE a.username = ? AND account_id = ? LIMIT ?;';
+      query_with_limit = 'SELECT transaction_id, transaction_type, t.amount_thb, t.amount_usd, exchange_rate, transaction_date FROM transaction_exchange t INNER JOIN cash c ON t.account_cash_id = c.account_id INNER JOIN account a ON a.id = c.account_id WHERE a.username = ? AND account_id = ? ORDER BY transaction_date DESC LIMIT ?;';
     }
   } else {
     return res.status(400).json({ error: 'Invalid security_type parameter' });
@@ -265,7 +264,7 @@ router.post('/account/:id/transaction/trade_us', (req, res) => {
   const { transaction_type, stock_symbol, unit, unit_price, gross_amount_usd, fee, vat, transaction_date } = req.body;
   const id = req.params.id;
 
-  if (!transaction_type || !stock_symbol || !unit || !unit_price || !gross_amount_usd || !fee || !vat || !transaction_date) {
+  if (!transaction_type || !stock_symbol || !unit || !unit_price || !gross_amount_usd || fee == undefined || vat == undefined || !transaction_date) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
@@ -277,7 +276,7 @@ router.post('/account/:id/transaction/trade_us', (req, res) => {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
-    db.query('CALL Add_transaction_trade_us(?, ?, ?, ?, ?, ?, ?, ?, ?)', [id, transaction_type, stock_symbol, unit, unit_price, gross_amount_usd, Float16Array(fee), Float16Array(vat), transaction_date], (err, results) => {
+    db.query('CALL Add_transaction_trade_us(?, ?, ?, ?, ?, ?, ?, ?, ?)', [id, transaction_type, stock_symbol, unit, unit_price, gross_amount_usd, fee, vat, transaction_date], (err, results) => {
       if (err) {
         return res.status(500).json({ error: 'Database query failed', details: err });
       }
@@ -291,7 +290,7 @@ router.post('/account/:id/transaction/trade_th', (req, res) => {
   const { transaction_type, ticker_symbol, unit, unit_price, gross_amount_thb, fee, vat, transaction_date, securities_type, mutual_fund_type } = req.body;
   const id = req.params.id;
 
-  if (!transaction_type || !ticker_symbol || !unit || !unit_price || !gross_amount_thb || !fee || !vat || !transaction_date) {
+  if (!transaction_type || !ticker_symbol || !unit || !unit_price || !gross_amount_thb || fee == undefined || vat == undefined || !transaction_date) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 

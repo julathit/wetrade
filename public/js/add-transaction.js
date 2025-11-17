@@ -121,8 +121,8 @@ tOption.addEventListener("change", function () {
       <option value="sell">Sell</option>
     </select>
 
-    <label for="tStockSymbol">Stock Symbol:</label>
-    <input type="text" id="tStockSymbol" name="stock_symbol" placeholder="e.g. AAPL" required>
+    <label for="tStockSymbol">Ticker Symbol:</label>
+    <input type="text" id="tStockSymbol" name="ticker_symbol" placeholder="e.g. AAPL" required>
 
     <label for="tUnit">Unit:</label>
     <input type="number" id="tUnit" name="unit" placeholder="e.g. 0.4363553" step="0.0000001" required>

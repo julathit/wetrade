@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (data.isSuperAdmin) {
-      document.getElementById('terminalLink').classList.remove('hidden');
+      document.getElementById('superadminLink').classList.remove('hidden');
     }
   })
   .catch(err => console.error("Error:", err));
@@ -42,7 +42,7 @@ document.getElementById('adminLink').addEventListener('click', function(event) {
   window.location.href = '/dashboard/admin.html';
 });
 
-document.getElementById('terminalLink').addEventListener('click', function(event) {
+document.getElementById('superadminLink').addEventListener('click', function(event) {
   event.preventDefault();
-  window.location.href = '/dashboard/terminal.html';
+  window.location.href = '/dashboard/superadmin.html';
 });

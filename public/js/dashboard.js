@@ -131,16 +131,15 @@ function fetchSummary(accountId) {
     return response.json();
   })
   .then(data => {
-    console.log("dashboard summery data: ",data);
-    console.log(data.total_asset_thb);
-    // total_asset, total_deposit, total_withdrawal, total_tax, total_deduction
+    // totalAssetTHB, totalAssetUSD, totalDeposit, totalWithdrawal, totalTax, totalDeductionTHB, totalDeductionUSD
     // total_asset_thb, total_asset_usd, total_deposit_thb, total_withdrawal_thb, total_taxable_usd, total_deduction_thb, total_deduction_usd
-    document.getElementById("totalAssetTHB").textContent = `฿${data.total_asset_thb.toFixed(2)} THB`;
-    document.getElementById("totalAssetUSD").textContent = `$${data.total_asset_usd.toFixed(2)} USD`;
-    document.getElementById("totalDeposit").textContent = `$${data.total_deposit_thb.toFixed(2)} THB`;
-    document.getElementById("totalWithdrawal").textContent = `$${data.total_withdrawal_thb.toFixed(2)} THB`;
-    document.getElementById("totalTax").textContent = `$${data.total_taxable_usd.toFixed(2)} USD`;
-    document.getElementById("totalDeduction").textContent = `$${data.total_deduction_thb.toFixed(2)} THB + $${data.total_deduction_usd.toFixed(2)} USD`;
+    document.getElementById("totalAssetTHB").textContent = `${formatNumber(data.total_asset_thb)} THB`;
+    document.getElementById("totalAssetUSD").textContent = `${formatNumber(data.total_asset_usd)} USD`;
+    document.getElementById("totalDeposit").textContent = `${formatNumber(data.total_deposit_thb)} THB`;
+    document.getElementById("totalWithdrawal").textContent = `${formatNumber(data.total_withdrawal_thb)} THB`;
+    document.getElementById("totalTax").textContent = `${formatNumber(data.total_taxable_usd)} USD`;
+    document.getElementById("totalDeductionTHB").textContent = `${formatNumber(data.total_deduction_thb)} THB`;
+    document.getElementById("totalDeductionUSD").textContent = `${formatNumber(data.total_deduction_usd)} USD`;
     hideNotification(notiCards);
   })
   .catch(err => {

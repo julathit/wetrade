@@ -3,37 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | WeTAX!</title>
+    <title>Admin Dashboard | WeTax!</title>
     <base href="/dashboard/">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="layout">
         <aside class="sidebar">
-            <h2>WeTAX Admin</h2>
+            <h2>WeTax! Admin</h2>
             <nav>
                 <a href="dashboard.html">Dashboard</a>
                 <a href="transaction.html">Transactions</a>
                 <a href="account.html">Accounts</a>
                 <a href="profile.html">Profile</a>
                 <a id="adminLink" href="admin.html" class="hidden active">Admin</a>
-                <a id="terminalLink" href="terminal.html" class="hidden">superadmin</a>
+                <a id="superadminLink" href="superadmin.html" class="hidden">Superadmin Panel</a>
                 <a href="index.html" id="logoutBtn">Logout</a>
             </nav>
         </aside>
 
         <main class="main-content">
-            <!-- <header class="topbar">
-                <h1>Admin Dashboard: Users Overview</h1>
-                <select id="transaction_option" class="dropdown hidden">
-                    <option value="trade_us" selected>US Assets</option>
-                    <option value="trade_th">TH Assets</option>
-                    <option value="exchange">Exchange</option>
-                </select>
-            </header> -->
-
             <section id="user-overview">
-                <h2>All Users</h2>
+                <header class="topbar">
+                    <h1>Admin Dashboard | All Users</h1>
+                </header>
                 <table id="userTable">
                     <colgroup>
                         <col style="width: 30%;">

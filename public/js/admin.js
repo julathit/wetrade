@@ -1,5 +1,3 @@
-// REFACTORED: Global state variables to keep track of the current context.
-// This is essential for knowing what to re-load after a deletion.
 let currentUserId = null;
 let currentUsername = null;
 let currentAccountId = null;
@@ -10,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchUsers();
 });
 
-// --- Navigation Functions (Global - Unchanged) ---
 function showUserTable() {
     document.getElementById('user-overview').classList.remove('hidden');
     document.getElementById('account-detail').classList.add('hidden');
@@ -27,8 +24,6 @@ function showAccountTable() {
     currentAccountId = null;
     currentAccountName = null;
 }
-
-// function showTransactionTable() {
 //     document.getElementById('user-overview').classList.add('hidden');
 //     document.getElementById('account-detail').classList.add('hidden');
 //     // document.getElementById('transaction-detail').classList.remove('hidden');
@@ -100,6 +95,7 @@ function renderUserTable(users) {
 }
 
 function renderAccountTable(accounts, username) {
+    document.getElementById('accountHeader').textContent.replace("[Username]", username);
     const tbody = document.getElementById('accountTable').getElementsByTagName('tbody')[0];
     tbody.innerHTML = ''; 
 
@@ -136,7 +132,6 @@ function renderAccountTable(accounts, username) {
     });
 }
 
-// function renderTransactionTable(transactions, accountName) {
 //     const tbody = document.getElementById('transactionTable').getElementsByTagName('tbody')[0];
 //     tbody.innerHTML = '';
 
@@ -187,41 +182,15 @@ function viewAccounts(username) {
             renderAccountTable(accounts, username);
         })
         .catch(error => {
-            console.error('Error fetching accounts:', error);
-            showToast('Failed to load accounts.', 'error');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to load accounts.'
+            })
             tbody.innerHTML = '<tr><td colspan="5" class="text-center-error">Error loading accounts.</td></tr>';
         });
 }
 
-// REFACTORED: Now fetches transactions for a specific account from a new API route.
-// function viewTransactions(accountId, accountName) {
-//     console.log(`Fetching transactions for account: ${accountName} (ID: ${accountId})`);
-//     currentAccountId = accountId; // Set global state
-//     currentAccountName = accountName;
-
-//     const tbody = document.getElementById('transactionTable').getElementsByTagName('tbody')[0];
-//     tbody.innerHTML = '<tr><td colspan="8" class="text-center">Loading transactions...</td></tr>';
-//     showTransactionTable(); // Show the transaction section
-
-//     // *** YOU MUST CREATE THIS API ROUTE ON YOUR BACKEND ***
-//     fetch(`/api/accounts/${accountId}/transactions`)
-//         .then(response => {
-//             if (!response.ok) throw new Error('Network response was not ok');
-//             return response.json();
-//         })
-//         .then(transactions => {
-//             renderTransactionTable(transactions, accountName);
-//         })
-//         .catch(error => {
-//             console.error('Error fetching transactions:', error);
-//             showToast('Failed to load transactions.', 'error');
-//             tbody.innerHTML = '<tr><td colspan="8" class="text-center-error">Error loading transactions.</td></tr>';
-//         });
-// }
-
-// --- CRUD Operations (API-based) ---
-
-// REFACTORED: Sends a DELETE request to the server.
 function deleteUser(username) {
     Swal.fire({
         title: `Are you sure you want to delete user ${username}? This action cannot be undone.`,
@@ -234,21 +203,32 @@ function deleteUser(username) {
             return;
         }
 
-        // fetch(`/api/users/${userId}`, {
-        //     method: 'DELETE'
-        // })
-        // .then(response => {
-        //     if (!response.ok) throw new Error('Failed to delete user.');
-        //     return response.json(); // Or response.text() if you don't return JSON
-        // })
-        // .then(data => {
-        //     showToast(`User ${userId} deleted successfully!`);
-        //     fetchUsers(); // Refresh the user table
-        // })
-        // .catch(error => {
-        //     console.error('Error deleting user:', error);
-        //     showToast('Error deleting user.', 'error');
-        // });
+        fetch(`/api/admin/user/?username=${username}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to delete user.');
+            return response.json();
+        })
+        .then(data => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Deleted',
+                text: `User ${username} deleted successfully!`
+            })
+            .then(() => {
+                window.location.reload();
+            });
+        })
+        .catch(error => {
+            console.error('Error deleting user:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error deleting user.'
+            });
+        });
     });
 }
 
@@ -264,48 +244,31 @@ function deleteAccount(accountId) {
             return;
         }
 
-        // fetch(`/api/accounts/${accountId}`, {
-        //     method: 'DELETE'
-        // })
-        // .then(response => {
-        //     if (!response.ok) throw new Error('Failed to delete account.');
-        //     return response.json();
-        // })
-        // .then(data => {
-        //     showToast(`Account ${accountId} deleted successfully!`);
-        //     // Refresh the account table for the current user
-        //     if (currentUserId && currentUsername) {
-        //         viewAccounts(currentUserId, currentUsername);
-        //     }
-        // })
-        // .catch(error => {
-        //     console.error('Error deleting account:', error);
-        //     showToast('Error deleting account.', 'error');
-        // });
+        fetch(`/api/admin/account/?accountId=${accountId}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to delete account.');
+            return response.json();
+        })
+        .then(data => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Deleted',
+                text: `Account deleted successfully!`
+            })
+            .then(() => {
+                window.location.reload();
+            });
+        })
+        .catch(error => {
+            console.error('Error deleting account:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error deleting account.'
+            });
+        });
     });
 }
-
-// REFACTORED: Sends a DELETE request to the server.
-// function deleteTransaction(transactionId) {
-//     if (!confirm(`Are you sure you want to delete transaction ${transactionId}?`)) return;
-
-//     // *** YOU MUST CREATE THIS API ROUTE ON YOUR BACKEND ***
-//     fetch(`/api/transactions/${transactionId}`, {
-//         method: 'DELETE'
-//     })
-//     .then(response => {
-//         if (!response.ok) throw new Error('Failed to delete transaction.');
-//         return response.json();
-//     })
-//     .then(data => {
-//         showToast('Transaction deleted successfully!');
-//         // Refresh the transaction table for the current account
-//         if (currentAccountId && currentAccountName) {
-//             viewTransactions(currentAccountId, currentAccountName);
-//         }
-//     })
-//     .catch(error => {
-//         console.error('Error deleting transaction:', error);
-//         showToast('Error deleting transaction.', 'error');
-//     });
-// }

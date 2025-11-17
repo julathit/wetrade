@@ -68,6 +68,7 @@ function hideSection() {
   document.getElementById("account_option").classList.remove("show");
   document.getElementById("transaction_option").classList.add("hidden");
   document.getElementById("transaction_option").classList.remove("show");
+  document.getElementById("addTransactionBtn").classList.add("hidden");
 }
 
 function showSection() {
@@ -79,6 +80,7 @@ function showSection() {
   document.getElementById("account_option").classList.add("show");
   document.getElementById("transaction_option").classList.remove("hidden");
   document.getElementById("transaction_option").classList.add("show");
+  document.getElementById("addTransactionBtn").classList.remove("hidden");
 }
 
 function fetchTransactions(accountId, sec_type) {
@@ -112,7 +114,7 @@ function fetchTransactions(accountId, sec_type) {
         </tr>
       `;
     } else {
-      if (sec_type === 'trade_us' || sec_type === 'trade_th') {
+      if (sec_type === 'trade_us') {
         thead.innerHTML = `
           <tr>
             <th>Date</th><th>Type</th><th>Symbol</th><th>Unit</th><th>Unit Price</th><th>Gross Amount</th><th>Fee+Vat</th><th>Total</th><th>Delete</th>
@@ -125,9 +127,29 @@ function fetchTransactions(accountId, sec_type) {
             <td>${t.ticker_symbol}</td>
             <td>${t.unit}</td>
             <td>${t.unit_price}</td>
-            <td>${sec_type === 'trade_us' ? t.gross_amount_usd : t.gross_amount_thb}</td>
+            <td>${t.gross_amount_usd}</td>
             <td>${(parseFloat(t.fee) + parseFloat(t.vat)).toFixed(2)}</td>
-            <td>${(parseFloat(sec_type === 'trade_us' ? t.gross_amount_usd : t.gross_amount_thb) + parseFloat(t.fee) + parseFloat(t.vat)).toFixed(2)}</td>
+            <td>${(parseFloat(t.gross_amount_usd) + parseFloat(t.fee) + parseFloat(t.vat)).toFixed(2)}</td>
+            <td><button class="deletebutton" onClick="deleteTransaction('${sec_type}', ${t.transaction_id})">Delete</button></td>
+          </tr>
+        `).join("");
+      } else if (sec_type === 'trade_th') {
+        thead.innerHTML = `
+          <tr>
+            <th>Date</th><th>Type</th><th>Symbol</th><th>Sec Type</th><th>Unit</th><th>Unit Price</th><th>Gross Amount</th><th>Fee+Vat</th><th>Total</th><th>Delete</th>
+          </tr>
+        `;
+        tbody.innerHTML = transactions.map(t => `
+          <tr>
+            <td>${dayjs(t.transaction_date).format("DD MMM YYYY @ HH:mm")}</td>
+            <td>${t.transaction_type}</td>
+            <td>${t.ticker_symbol}</td>
+            <td>${t.security_type === "th" ? "stock" : t.security_type}</td>
+            <td>${t.unit}</td>
+            <td>${t.unit_price}</td>
+            <td>${t.gross_amount_thb}</td>
+            <td>${(parseFloat(t.fee) + parseFloat(t.vat)).toFixed(2)}</td>
+            <td>${(parseFloat(t.gross_amount_thb) + parseFloat(t.fee) + parseFloat(t.vat)).toFixed(2)}</td>
             <td><button class="deletebutton" onClick="deleteTransaction('${sec_type}', ${t.transaction_id})">Delete</button></td>
           </tr>
         `).join("");

@@ -19,3 +19,11 @@ function hideNotification(toast) {
   toast.style.animation = 'toast-out 0.5s forwards';
   toast.addEventListener('animationend', () => toast.remove());
 }
+
+function formatNumber(value, decimals = 2) {
+  const num = parseFloat(value);
+  return num.toLocaleString("en-US", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  });
+}

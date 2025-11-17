@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard | WeTAX!</title>
+  <title>Dashboard | WeTax!</title>
   <base href="/dashboard/">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <div class="layout">
     <aside class="sidebar">
-      <h2>WeTAX</h2>
+      <h2>WeTax!</h2>
       <nav>
         <a href="dashboard.html" class="active">Dashboard</a>
         <a href="transaction.html">Transactions</a>
         <a href="account.html">Accounts</a>
         <a href="profile.html">Profile</a>
         <a id="adminLink" href="admin.html" class="hidden">Admin</a>
-        <a id="terminalLink" href="terminal.html" class="hidden">superadmin</a>
+        <a id="superadminLink" href="superadmin.html" class="hidden">Superadmin Panel</a>
         <a href="#" id="logoutBtn">Logout</a>
       </nav>
     </aside>
@@ -28,18 +28,19 @@
       </header>
 
       <section class="cards">
+        <!-- totalAssetTHB, totalAssetUSD, totalDeposit, totalWithdrawal, totalTax, totalDeductionTHB, totalDeductionUSD -->
         <div class="card">
           <h3>Total Asset</h3>
-          <p id="totalAssetTHB">$0</p>
+          <p id="totalAssetTHB">฿0</p>
           <p id="totalAssetUSD">$0</p>
         </div>
         <div class="card">
           <h3>THB Cash Deposit</h3>
-          <p id="totalDeposit">$0</p>
+          <p id="totalDeposit">฿0</p>
         </div>
         <div class="card">
           <h3>THB Cash Withdrawal</h3>
-          <p id="totalWithdrawal">$0</p>
+          <p id="totalWithdrawal">฿0</p>
         </div>
         <div class="card">
           <h3>Tax Payable</h3>
@@ -47,7 +48,8 @@
         </div>
         <div class="card">
           <h3>Possible Deduction</h3>
-          <p id="totalDeduction">$0</p>
+          <p id="totalDeductionTHB">฿0</p>
+          <p id="totalDeductionUSD">$0</p>
         </div>
       </section>
 
