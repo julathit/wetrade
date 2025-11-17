@@ -15,7 +15,8 @@
                 <a href="transaction.html">Transactions</a>
                 <a href="account.html" class="active">Accounts</a>
                 <a href="profile.html">Profile</a>
-                <a href="terminal.html">Terminal</a>
+                <a id="adminLink" href="admin.html" class="hidden">Admin</a>
+                <a id="terminalLink" href="terminal.html" class="hidden">superadmin</a>
                 <a href="index.html" id="logoutBtn">Logout</a>
             </nav>
         </aside>
@@ -31,16 +32,28 @@
                 <label for="accountTaxYear">Tax Year:</label>
                 <input type="number" id="accountTaxYear" name="account_tax_year" placeholder="Tax Year" required>
                 <br />
-                <label for="cashAmountTHB">Cash Amount (THB):</label>
-                <input type="number" id="cashAmountTHB" name="cash_amount_thb" placeholder="Cash Amount (THB)" required>
-                <br />
-                <label for="cashAmountUSD">Cash Amount (USD):</label>
-                <input type="number" id="cashAmountUSD" name="cash_amount_usd" placeholder="Cash Amount (USD)" required>
+                <label for="accountCashTHB">Current Cash Amount (THB):</label>
+                <input type="number" id="accountCashTHB" name="account_cash_thb" placeholder="Cash Amount (THB)" disabled>
+                <label for="accountCashUSD">Current Cash Amount (USD):</label>
+                <input type="number" id="accountCashUSD" name="account_cash_usd" placeholder="Cash Amount (USD)" disabled>
                 <br />
 
-                <div id="dynamicFields"></div>
+                <label for="depwith">Deposits/Withdrawals (THB):</label>
+                <select id="depwith" name="depwith">
+                    <option value="deposit">Deposit</option>
+                    <option value="withdrawal">Withdrawal</option>
+                </select>
+                
+                <input type="number" id="depwithAmount" name="depwith_amount" placeholder="Amount (Only THB allowed)">
+                <br />
+
+                <label for="dateInput">Date:</label>
+                <input type="datetime-local" id="dateInput" name="date_input" required>
+                <br />
+
                 <button id="saveaccount" class="submitbutton">Save account</button>
                 <button id="deleteaccount" class="deletebutton">Delete account</button>
+                <button id="back">Back</button>
             </div>
 
             <script src="js/edit-account.js"></script>

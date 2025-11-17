@@ -1,33 +1,5 @@
 document.getElementById("addTransactionBtn").addEventListener("click", () => {
   const selectedAccountId = document.getElementById("account_option").value;
-  // Swal.fire({
-  //   title: 'User Information',
-  //   html: `
-  //     <input id="swal-input1" class="swal2-input" placeholder="Enter your name">
-  //     <input id="swal-input2" type="email" class="swal2-input" placeholder="Enter your email">
-  //   `,
-  //   focusConfirm: false,
-  //   showCancelButton: true,
-  //   confirmButtonText: 'Submit',
-  //   preConfirm: () => {
-  //     const name = document.getElementById('swal-input1').value;
-  //     const email = document.getElementById('swal-input2').value;
-
-  //     if (!name || !email) {
-  //       Swal.showValidationMessage('Please enter both name and email');
-  //       return false;
-  //     }
-
-  //     return { name, email };
-  //   }
-  // }).then((result) => {
-  //   if (result.isConfirmed) {
-  //     Swal.fire(`
-  //       Name: ${result.value.name}<br>
-  //       Email: ${result.value.email}
-  //     `);
-  //   }
-  // });
   window.location.href = '/dashboard/add-transaction.html?account_id=' + selectedAccountId;
 });
 
@@ -60,6 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (accounts.length == 0) {
       document.getElementById("account_option").style.display = "none";
+      hideSection();
       return;
     }
 
@@ -127,6 +100,8 @@ function fetchTransactions(accountId, sec_type) {
   .then(data => {
     transactions = data;
 
+    console.log(data);
+
     const tbody = document.querySelector("#transactionTable tbody");
     const thead = document.querySelector("#transactionTable thead");
 
@@ -140,40 +115,94 @@ function fetchTransactions(accountId, sec_type) {
       if (sec_type === 'trade_us' || sec_type === 'trade_th') {
         thead.innerHTML = `
           <tr>
-            <th>Date</th><th>Type</th><th>Symbol</th><th>Unit</th><th>Unit Price</th><th>Gross Amount</th><th>Fee</th>
+            <th>Date</th><th>Type</th><th>Symbol</th><th>Unit</th><th>Unit Price</th><th>Gross Amount</th><th>Fee+Vat</th><th>Total</th><th>Delete</th>
           </tr>
         `;
-        tbody.innerHTML = transactions.slice(-5).reverse().map(t => `
+        tbody.innerHTML = transactions.map(t => `
           <tr>
-            <td>${t.transaction_date}</td>
+            <td>${dayjs(t.transaction_date).format("DD MMM YYYY @ HH:mm")}</td>
             <td>${t.transaction_type}</td>
             <td>${t.ticker_symbol}</td>
             <td>${t.unit}</td>
             <td>${t.unit_price}</td>
-            <td>${t.gross_amount_usd}</td>
-            <td>${t.fee}</td>
+            <td>${sec_type === 'trade_us' ? t.gross_amount_usd : t.gross_amount_thb}</td>
+            <td>${(parseFloat(t.fee) + parseFloat(t.vat)).toFixed(2)}</td>
+            <td>${(parseFloat(sec_type === 'trade_us' ? t.gross_amount_usd : t.gross_amount_thb) + parseFloat(t.fee) + parseFloat(t.vat)).toFixed(2)}</td>
+            <td><button class="deletebutton" onClick="deleteTransaction('${sec_type}', ${t.transaction_id})">Delete</button></td>
           </tr>
         `).join("");
       } else if (sec_type === 'exchange') {
-        console.log("I should dynamically render exchange transaction");
         thead.innerHTML = `
           <tr>
-            <th>Date</th><th>Type</th><th>USD Exchange type</th><th>Amount (THB)</th><th>Amount (USD)</th><th>Exchange Rate</th>
+            <th>Date</th><th>USD Exchange type</th><th>Amount (THB)</th><th>Amount (USD)</th><th>Exchange Rate</th><th>Delete</th>
           </tr>
         `;
-        tbody.innerHTML = transactions.slice(-5).reverse().map(t => `
-          <tr>
-            <td>${t.transaction_date}</td>
-            <td>${t.transaction_type}</td>
-            <td>${t.amount_thb}</td>
-            <td>${t.amount_usd}</td>
-            <td>${t.exchange_rate}</td>
-          </tr>
-        `).join("");
+        tbody.innerHTML = transactions.map(t => {
+          if (t.amount_usd != 0) {
+            return `
+            <tr>
+              <td>${dayjs(t.transaction_date).format("DD MMM YYYY @ HH:mm")}</td>
+              <td>${t.transaction_type}</td>
+              <td>${t.amount_thb}</td>
+              <td>${t.amount_usd}</td>
+              <td>${t.exchange_rate}</td>
+              <td><button class="deletebutton" onClick="deleteTransaction('${sec_type}', ${t.transaction_id})">Delete</button></td>
+            </tr>
+            `
+          } else {
+            return `
+            <tr>
+              <td>${dayjs(t.transaction_date).format("DD MMM YYYY @ HH:mm")}</td>
+              <td>${t.transaction_type === 'sell' ? "deposit" : "withdraw"}</td>
+              <td>${t.amount_thb}</td>
+              <td>-</td>
+              <td>-</td>
+              <td><button class="deletebutton" onClick="deleteTransaction('${sec_type}', ${t.transaction_id})">Delete</button></td>
+            </tr>
+            `
+          }
+        }).join("");
       }
     }
 
     showSection();
     hideNotification(noti);
   }).catch(err => console.error("Error:", err));
+}
+
+function deleteTransaction(sec_type, transactionId) {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, delete it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      let noti = showNotification('Deleting transaction...', 0);
+      fetch('/api/user/account/transaction/' + sec_type + '/' + transactionId, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to delete transaction');
+        }
+        return response.json();
+      })
+      .then(data => {
+        hideNotification(noti);
+        Swal.fire(
+          'Deleted!',
+          'Transaction has been deleted.',
+          'success'
+        ).then(() => {
+          location.reload();
+        });
+      })
+      .catch(err => console.error("Error:", err));
+    }
+  });
 }

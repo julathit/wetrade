@@ -30,7 +30,7 @@ function generateExchangeFields() {
     <input type="text" id="tCalculatedAmount" name="calculated_amount" readonly>
 
     <label for="tDate">Transaction Date:</label>
-    <input type="date" id="tDate" name="transaction_date" required>
+    <input type="datetime-local" id="tDate" name="transaction_date" required>
   `;
 }
 
@@ -140,7 +140,7 @@ tOption.addEventListener("change", function () {
     <input type="number" id="tVat" name="vat" placeholder="e.g. 0.00" step="0.01" required>
 
     <label for="tDate">Transaction Date:</label>
-    <input type="date" id="tDate" name="transaction_date" required>
+    <input type="datetime-local" id="tDate" name="transaction_date" required>
     `;
   }
 
@@ -152,6 +152,7 @@ tOption.addEventListener("change", function () {
         <option value="buy">Buy</option>
         <option value="sell">Sell</option>
       </select>
+      <br />
 
       <label for="tStockSymbol">Ticker Symbol:</label>
       <input type="text" id="tStockSymbol" name="ticker_symbol" placeholder="e.g. PTT" required>
@@ -172,7 +173,7 @@ tOption.addEventListener("change", function () {
       <input type="number" id="tVat" name="vat" placeholder="e.g. 0.70" step="0.01" required>
 
       <label for="tDate">Transaction Date:</label>
-      <input type="date" id="tDate" name="date" required>
+      <input type="datetime-local" id="tDate" name="date" required>
 
       <label for="tSecurityType">Securities Type:</label>
       <select id="tSecurityType" name="securities_type" required>
@@ -216,51 +217,116 @@ document.getElementById("savetransaction").addEventListener("click", () => {
 
   let baseUrl = '/api/user/account/' + account_id + '/transaction/';
 
+  const formattedDateTime = document.getElementById("tDate").value.replace('T', ' ') + ':00';
+
+  if (formattedDateTime === 'Invalid date :00' || !document.getElementById("tDate").value) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Please enter a valid date and time for the transaction.'
+    });
+    return;
+  }
+
   // ---------------- EXCHANGE ----------------
   if (option === "exchange") {
+    let transaction_type = document.getElementById("tType").value;
+    let amount_thb = transaction_type === "buy" ? parseFloat(document.getElementById("tAmountTHB").value) : parseFloat(tCalculatedAmount.value.replace(' THB', ''));
+    let amount_usd = transaction_type === "sell" ? parseFloat(document.getElementById("tAmountUSD").value) : parseFloat(tCalculatedAmount.value.replace(' USD', ''));
+    let exchange_rate = parseFloat(document.getElementById("tRate").value);
+    
+    if (!transaction_type || exchange_rate <= 0 || (transaction_type === "buy" && amount_thb <= 0) || (transaction_type === "sell" && amount_usd <= 0)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Please fill in all required fields with valid values.'
+      });
+      return;
+    }
+
     apiUrl = baseUrl + 'exchange';
+
     payload = {
-      transaction_type: document.getElementById("tType").value,
-      amount_thb: parseFloat(document.getElementById("tAmountTHB").value) || 0,
-      amount_usd: parseFloat(document.getElementById("tAmountUSD").value) || 0,
-      exchange_rate: parseFloat(document.getElementById("tRate").value),
-      transaction_date: document.getElementById("tDate").value,
-      account_id
+      transaction_type,
+      amount_thb,
+      amount_usd,
+      exchange_rate,
+      transaction_date: formattedDateTime
     };
   } 
 
   // ---------------- TRADE US ----------------
   else if (option === "trade_us") {
+    let transaction_type = document.getElementById("tType").value;
+    let stock_symbol = document.getElementById("tStockSymbol").value;
+    let unit = parseFloat(document.getElementById("tUnit").value);
+    let unit_price = parseFloat(document.getElementById("tUnitPrice").value);
+    let gross_amount_usd = parseFloat(document.getElementById("tGross").value);
+    let fee = parseFloat(document.getElementById("tFee").value);
+    let vat = parseFloat(document.getElementById("tVat").value);
+
+    if (!transaction_type || !stock_symbol || isNaN(unit) || isNaN(unit_price) || isNaN(gross_amount_usd) || isNaN(fee) || isNaN(vat)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Please fill in all required fields with valid values.'
+      });
+      return;
+    }
     apiUrl = baseUrl + 'trade_us';
     payload = {
-      transaction_type: document.getElementById("tType").value,
-      stock_symbol: document.getElementById("tStockSymbol").value,
-      unit: parseFloat(document.getElementById("tUnit").value),
-      unit_price: parseFloat(document.getElementById("tUnitPrice").value),
-      gross_amount_usd: parseFloat(document.getElementById("tGross").value),
-      fee: parseFloat(document.getElementById("tFee").value),
-      vat: parseFloat(document.getElementById("tVat").value),
-      transaction_date: document.getElementById("tDate").value,
-      account_id
+      transaction_type,
+      stock_symbol,
+      unit,
+      unit_price,
+      gross_amount_usd,
+      fee,
+      vat,
+      transaction_date: formattedDateTime
     };
   }
 
-  // // ---------------- TRADE TH ----------------
+  // ---------------- TRADE TH ----------------
   else if (option === "trade_th") {
+    let transaction_type = document.getElementById("tType").value;
+    let ticker_symbol = document.getElementById("tStockSymbol").value;
+    let unit = parseFloat(document.getElementById("tUnit").value);
+    let unit_price = parseFloat(document.getElementById("tUnitPrice").value);
+    let gross_amount_thb = parseFloat(document.getElementById("tGross").value);
+    let fee = parseFloat(document.getElementById("tFee").value);
+    let vat = parseFloat(document.getElementById("tVat").value);
+
+    if (!transaction_type || !ticker_symbol || isNaN(unit) || isNaN(unit_price) || isNaN(gross_amount_thb) || isNaN(fee) || isNaN(vat)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Please fill in all required fields with valid values.'
+      });
+      return;
+    }
+
     apiUrl = baseUrl + 'trade_th';
     payload = {
-      transaction_type: document.getElementById("tType").value,
-      ticker_symbol: document.getElementById("tStockSymbol").value,
-      unit: parseFloat(document.getElementById("tUnit").value),
-      unit_price: parseFloat(document.getElementById("tUnitPrice").value),
-      gross_amount_thb: parseFloat(document.getElementById("tGross").value),
-      fee: parseFloat(document.getElementById("tFee").value),
-      vat: parseFloat(document.getElementById("tVat").value),
-      transaction_date: document.getElementById("tDate").value,
+      transaction_type,
+      ticker_symbol,
+      unit,
+      unit_price,
+      gross_amount_thb,
+      fee,
+      vat,
+      transaction_date: formattedDateTime,
       securities_type: document.getElementById("tSecurityType").value,
-      mutual_fund_type: document.getElementById("tFundType") ? document.getElementById("tFundType").value : null,
-      account_id
+      mutual_fund_type: document.getElementById("tFundType") ? document.getElementById("tFundType").value : null
     };
+  }
+
+  if (option === "exchange" && (isNaN(payload.exchange_rate) || payload.exchange_rate <= 0)) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Please enter a valid exchange rate greater than 0.'
+    });
+    return;
   }
 
   fetch(apiUrl, {
@@ -273,6 +339,13 @@ document.getElementById("savetransaction").addEventListener("click", () => {
   })
   .then(response => {
     if (!response.ok) {
+      response.json().then(data => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: data.details.sqlMessage || 'Failed to save transaction. Please try again.'
+        });
+      });
       throw new Error('Failed to save transaction');
     }
     return response.json();

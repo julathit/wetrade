@@ -1,10 +1,7 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import dotenv from 'dotenv';
-import db from '../db.js';
-
-dotenv.config();
+import { db } from '../db.js';
 
 const router = express.Router();
 
@@ -88,6 +85,47 @@ router.post("/login", (req, res) => {
       });
 
       res.json({ message: "Login successful", username: user.username });
+    }
+  );
+});
+
+router.put("/change-password", (req, res) => {
+  if (!req.body) {
+    return res.status(400).json({ message: "No data provided" });
+  }
+
+  if (Object.keys(req.body).length === 0) {
+    return res.status(400).json({ message: "Empty data" });
+  }
+
+  const { username, oldPassword, newPassword } = req.body;
+  if (!username || !oldPassword || !newPassword)
+    return res.status(400).json({ message: "Missing fields, please provide username, old password, and new password" });
+
+  db.query(
+    "SELECT * FROM user WHERE username = ?",
+    [username],
+    async (err, results) => {
+      if (err) return res.status(500).json({ message: "Server error"});
+      if (results.length === 0)
+        return res.status(404).json({ message: "User not found" });
+
+      const user = results[0];
+      const valid = await bcrypt.compare(oldPassword, user.password);
+      if (!valid) return res.status(401).json({ message: "Invalid old password" });
+
+      if (newPassword.length < 8)
+        return res.status(400).json({ message: "New password too short" });
+
+      const hashed = await bcrypt.hash(newPassword, 10);
+      db.query(
+        "UPDATE user SET password = ? WHERE username = ?",
+        [hashed, username],
+        (err) => {
+          if (err) return res.status(500).json({ message: "Password change failed", error: err });
+          res.json({ message: "Password changed successfully" });
+        }
+      );
     }
   );
 });

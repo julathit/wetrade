@@ -35,14 +35,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     hideNotification(noti);
     fetchTransactions(accounts[0].id)
+    fetchSummary(accounts[0].id);
   })
   .catch(err => console.error("Error:", err));
+  hideNotification(noti);
 });
 
 document.getElementById("account_option").addEventListener("change", (event) => {
   const accountId = event.target.value;
   if (accountId) {
     fetchTransactions(accountId);
+    fetchSummary(accountId);
   }
 });
 
@@ -61,6 +64,7 @@ function showSection() {
 }
 
 function fetchTransactions(accountId) {
+  // display recent transactions
   let noti = showNotification("Loading transactions...", 0);
   fetch('/api/user/account/' + accountId + "/transaction?security_type=trade_us", {
     method: 'GET',
@@ -89,13 +93,14 @@ function fetchTransactions(accountId) {
     } else {
       tbody.innerHTML = transactions.slice(-5).reverse().map(t => `
         <tr>
-          <td>${t.transaction_date}</td>
+          <td>${dayjs(t.transaction_date).format("DD MMM YYYY @ HH:mm")}</td>
           <td>${t.transaction_type}</td>
           <td>${t.ticker_symbol}</td>
           <td>${t.unit}</td>
           <td>${t.unit_price}</td>
           <td>${t.gross_amount_usd}</td>
-          <td>${t.fee}</td>
+          <td>${parseFloat(t.fee) + parseFloat(t.vat)}</td>
+          <td>${parseFloat(t.gross_amount_usd) + parseFloat(t.fee) + parseFloat(t.vat)}</td>
         </tr>
       `).join("");
     }
@@ -108,4 +113,38 @@ function fetchTransactions(accountId) {
 
     hideNotification(noti);
   }).catch(err => console.error("Error:", err));
+}
+
+function fetchSummary(accountId) {
+  let notiCards = showNotification("Loading account summary...", 0);
+  fetch('/api/user/account/' + accountId + '/summary', {
+    method: 'GET',
+    credentials: 'include'
+  })
+  .then(response => {
+    if (response.status === 404) {
+      return;
+    } else if (!response.ok) {
+      return;
+    }
+
+    return response.json();
+  })
+  .then(data => {
+    console.log("dashboard summery data: ",data);
+    console.log(data.total_asset_thb);
+    // total_asset, total_deposit, total_withdrawal, total_tax, total_deduction
+    // total_asset_thb, total_asset_usd, total_deposit_thb, total_withdrawal_thb, total_taxable_usd, total_deduction_thb, total_deduction_usd
+    document.getElementById("totalAssetTHB").textContent = `฿${data.total_asset_thb.toFixed(2)} THB`;
+    document.getElementById("totalAssetUSD").textContent = `$${data.total_asset_usd.toFixed(2)} USD`;
+    document.getElementById("totalDeposit").textContent = `$${data.total_deposit_thb.toFixed(2)} THB`;
+    document.getElementById("totalWithdrawal").textContent = `$${data.total_withdrawal_thb.toFixed(2)} THB`;
+    document.getElementById("totalTax").textContent = `$${data.total_taxable_usd.toFixed(2)} USD`;
+    document.getElementById("totalDeduction").textContent = `$${data.total_deduction_thb.toFixed(2)} THB + $${data.total_deduction_usd.toFixed(2)} USD`;
+    hideNotification(notiCards);
+  })
+  .catch(err => {
+    console.error("Error:", err);
+    hideNotification(notiCards);
+  });
 }

@@ -16,51 +16,54 @@
                 <a href="transaction.html">Transactions</a>
                 <a href="account.html">Accounts</a>
                 <a href="profile.html">Profile</a>
-                <a href="admin.html" class="active">Admin</a>
-                <a href="terminal.html">Terminal</a>
+                <a id="adminLink" href="admin.html" class="hidden active">Admin</a>
+                <a id="terminalLink" href="terminal.html" class="hidden">superadmin</a>
                 <a href="index.html" id="logoutBtn">Logout</a>
             </nav>
         </aside>
 
         <main class="main-content">
-            <header class="topbar">
+            <!-- <header class="topbar">
                 <h1>Admin Dashboard: Users Overview</h1>
                 <select id="transaction_option" class="dropdown hidden">
                     <option value="trade_us" selected>US Assets</option>
                     <option value="trade_th">TH Assets</option>
                     <option value="exchange">Exchange</option>
                 </select>
-            </header>
+            </header> -->
 
             <section id="user-overview">
                 <h2>All Users</h2>
                 <table id="userTable">
+                    <colgroup>
+                        <col style="width: 30%;">
+                        <col style="width: 40%;">
+                        <col style="width: 10%;">
+                        <col style="width: 12.5%;">
+                        <col style="width: 12.5%;">
+                    </colgroup>
                     <thead>
                         <tr>
-                            <th>User ID</th>
                             <th>Username</th>
                             <th>Email</th>
-                            <th>Action</th>
+                            <th>Role</th>
+                            <th colspan="2">Action</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        </tbody>
+                    <tbody></tbody>
                 </table>
             </section>
-
-            
 
             <section id="account-detail" class="hidden">
                 <h2 id="accountHeader">Accounts for [Username]</h2>
-                <button onclick="showUserTable()">← Back to Users</button>
+                <button onclick="showUserTable()" class="viewbutton">← Back to Users</button>
                 <table id="accountTable" class="detail-table">
                     <thead>
                         <tr>
-                            <th>Account ID</th>
-                            <th>username</th>
-                            <th>Amount th</th>
-                            <th>Amount us</th>
-                            <th>Created On</th>
+                            <th>Name</th>
+                            <th>Tax year</th>
+                            <th>Amount THB</th>
+                            <th>Amount USD</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -69,9 +72,9 @@
                 </table>
             </section>
 
-            <section id="transaction-detail" class="hidden">
+            <!-- <section id="transaction-detail" class="hidden">
                 <h2 id="transactionHeader">Transactions for [Account Name]</h2>
-                <button onclick="showAccountTable()">← Back to Accounts</button>
+                <button onclick="showAccountTable()" class="viewbutton">← Back to Accounts</button>
                 <table id="transactionTable" class="detail-table">
                     <thead>
                         <tr>
@@ -81,12 +84,13 @@
                     <tbody>
                         </tbody>
                 </table>
-            </section>
+            </section> -->
         </main>
     </div>
     <script src="js/admin.js"></script> 
     <script src="js/main.js"></script>
     <script src="js/utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <div id="toast-container"></div>
 </body>
 </html>

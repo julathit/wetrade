@@ -17,6 +17,16 @@ document.addEventListener("DOMContentLoaded", () => {
     return response.json();
   })
   .then(data => {
+    if (data.length === 0) {
+      table.innerHTML = `
+        <tr>
+          <td colspan="5">No accounts found. Click add account from the above.</td>
+        </tr>
+      `;
+      hideNotification(noti);
+      return;
+    }
+
     table.innerHTML = data.map((account, i) => `
       <tr>
         <td>${account.name}</td>
@@ -31,6 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
   .catch(err => console.error("Error:", err));
   hideNotification(noti);
 });
+
 function editAccount(id) {
   window.location.href = '/dashboard/edit-account.html?account_id=' + id;
 }

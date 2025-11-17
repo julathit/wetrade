@@ -74,9 +74,123 @@ body {
   color: #555;
 }
 .card p {
-  font-size: 1.4rem;
+  font-size: 1rem;
   font-weight: bold;
   color: #222;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+.form-container {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  text-align: center;
+  width: 30%;
+  margin: auto;
+}
+
+.form-container input {
+  display: block;
+  width: 100%;
+  padding: 0.7rem;
+  margin: 0.5rem 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+.form-container button {
+  background: #0066ff;
+  color: white;
+  border: none;
+  padding: 0.7rem;
+  width: 100%;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 1rem;
+}
+
+.form-card {
+  background: white;
+  padding: 2rem 3rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  text-align: center;
+  width: 50%;
+}
+.form-card input {
+  display: block;
+  width: 100%;
+  padding: 0.7rem;
+  margin: 0.5rem 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  /* outline: none; */
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+.form-card button {
+  background: #0066ff;
+  color: white;
+  border: none;
+  padding: 0.7rem;
+  width: 100%;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 1rem;
+}
+
+.form-grid {
+  display: flex; 
+  flex-direction: column;
+  align-items: center; 
+  /* justify-content: center;  */
+  height: 80vh;
+  width: 100%;
+}
+
+.form-carda {
+  background: white;
+  padding: 0.5rem 0.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  text-align: center;
+  width: 35vw;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+}
+
+.form-carda button {
+  background: #0066ff;
+  color: white;
+  border: none;
+  padding: 1rem;
+  width: 30%;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 1rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 150px 1fr; /* label fixed width, input flexible */
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  margin-right: 20px;
+}
+
+.form-row input {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
 }
 
 table {
@@ -97,11 +211,11 @@ th {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 .show {
-  display: block;
+  display: block !important;
 }
 
 select {
@@ -172,38 +286,6 @@ option:hover {
   }
 }
 
-.form-container {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  text-align: center;
-  width: 30%;
-  margin: auto;
-}
-
-.form-container input {
-  display: block;
-  width: 100%;
-  padding: 0.7rem;
-  margin: 0.5rem 0;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-sizing: border-box;
-  transition: border-color 0.2s ease;
-}
-.form-container button {
-  background: #0066ff;
-  color: white;
-  border: none;
-  padding: 0.7rem;
-  width: 100%;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  margin-top: 1rem;
-}
-
 .submitbutton {
   /* padding: 10px 20px; */
   /* border: none; */
@@ -224,6 +306,18 @@ option:hover {
   background: #0052cc;
 }
 
+.viewbutton {
+  background-color: #0066ff !important;
+  color: white;
+  border: none;
+  padding: 0.7rem;
+  width: 100%;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  /* margin-top: 1rem; */
+}
+
 .deletebutton {
   background-color: red !important;
   color: white;
@@ -233,7 +327,13 @@ option:hover {
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
-  margin-top: 1rem;
+  /* margin-top: 1rem; */
+}
+
+.deletebutton:disabled {
+  background-color: grey !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
 }
 
 .editbutton {
@@ -259,14 +359,6 @@ option:hover {
   /* margin-top: 2rem;
   margin-bottom: 0rem; */
 }
-/* 
--------------------------------- */
-/* Admin page */
-
-
-
-
-/* --- Terminal Specific Styles --- */
 
 #admin-terminal {
     width: 100%;

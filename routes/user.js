@@ -1,8 +1,21 @@
 import express from "express";
 
-import db from '../db.js';
+import { db } from '../db.js';
 
 const router = express.Router();
+
+router.get('/profile', (req, res) => {
+  if (!req.user || !req.user.username) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  db.query('SELECT username, email FROM user WHERE username = ?', [req.user.username], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database query failed' });
+    }
+    res.json(results[0]);
+  });
+});
 
 router.get('/account', (req, res) => {
   if (!req.user || !req.user.username) {
@@ -32,119 +45,6 @@ router.get('/account/:id', (req, res) => {
   });
 });
 
-router.get('/user_adm', (req, res) => {
-
-  db.query('SELECT ROW_NUMBER() OVER (ORDER BY username) AS id, username, email FROM user;', (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database query failed' });
-    }
-    res.json(results);
-  });
-});
-
-// router.get('')
-
-router.get('/accountGet_adm/:user', (req, res) => {
-  const user = req.params.user;
-  
-  db.query('select ac.id, ac.name, ca.amount_thb, ca.amount_usd, ac.tax_year from account as ac right join cash as ca on ac.id = ca.account_id  where ac.username = ?;', [user], (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database query failed' });
-    }
-    res.json(results);
-  });
-})
-
-router.get('/transactionGet_adm/:id', (req, res) => {
-  const id = req.params.id
-
-  db.query()
-})
-
-router.get('/trsGet_adm/:accountId/transactions', async (req, res) => {
-    // console.log("Transaction request received");
-    try {
-        const { accountId } = req.params;
-        const { type } = req.query; // Get transaction type from query parameter
-
-        // Validate accountId
-        if (!accountId || isNaN(accountId)) {
-            return res.status(400).json({ 
-                error: 'Invalid account ID' 
-            });
-        }
-
-        // Validate transaction type
-        const validTypes = ['trade_us', 'trade_th', 'exchange'];
-        if (!type || !validTypes.includes(type)) {
-            return res.status(400).json({ 
-                error: 'Invalid transaction type. Must be: trade_us, trade_th, or exchange' 
-            });
-        }
-
-        let transactions = [];
-
-        // Query based on transaction type
-        if (type === 'trade_us') {
-            // Query for US Assets transactions
-            const query = `
-                select transaction_date, transaction_type, st.ticker_symbol ,unit,unit_price,gross_amount_usd,fee from transaction_trade_us 
-                left join securities as st on stock_id = st.securities_id
-                where account_cash_id = ?;
-            `;
-            
-            // FIX: Use db.promise().query() instead of db.query()
-            const [rows] = await db.promise().query(query, [accountId]);
-            transactions = rows;
-
-        } else if (type === 'trade_th') {
-            // Query for TH Assets transactions
-            const query = `
-                select transaction_date, transaction_type, st.ticker_symbol ,unit,unit_price,gross_amount_thb,fee from transaction_trade_th
-                left join securities as st on stock_id = st.securities_id;
-                where account_cash_id = ?;
-            `;
-            const [rows] = await db.promise().query(query, [accountId]);
-            transactions = rows;
-
-        } else if (type === 'exchange') {
-            // Query for Exchange transactions
-            console.log('Fetching exchange transactions');
-            const query = `
-                SELECT 
-                    transaction_date as date,
-                    transaction_type as type,
-                    amount_usd,
-                    amount_thb,
-                    exchange_rate
-                FROM transaction_exchange
-                WHERE account_cash_id = ?
-                ORDER BY transaction_date DESC
-            `;
-            const [rows] = await db.promise().query(query, [accountId]);
-            transactions = rows;
-        }
-
-        // Return the transactions
-        res.json(transactions);
-
-    } catch (error) {
-        console.error('Error fetching transactions:', error);
-        res.status(500).json({ 
-            error: 'Failed to fetch transactions',
-            details: error.message 
-        });
-    }
-});
-
-router.post('/query', (req, res) => {
-  const { sql } = req.body;
-  db.query(sql, (err, result) => {
-    if (err) return res.status(400).json({ error: err.message });
-    res.json(result);
-  });
-});
-
 router.post('/account', (req, res) => {
   if (!req.user || !req.user.username) {
     return res.status(401).json({ error: 'Unauthorized' });
@@ -169,8 +69,8 @@ router.put('/account/:id', (req, res) => {
   }
 
   const id = req.params.id;
-  const { name, tax_year, amount_thb, amout_usd } = req.body;
-  if (!name || !tax_year || amount_thb == undefined || amout_usd == undefined) {
+  const { name, tax_year, money_method, amount_thb, transaction_date } = req.body;
+  if (!name || !tax_year || money_method == undefined || amount_thb == undefined || !transaction_date) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
@@ -187,7 +87,17 @@ router.put('/account/:id', (req, res) => {
         return res.status(500).json({ error: 'Database query failed', details: err });
       }
 
-      db.query('UPDATE cash SET amount_thb = ?, amount_usd = ? WHERE account_id = ?', [amount_thb, amout_usd, id], (err, results) => {
+      if (money_method === 'deposit') {
+        var query = "CALL deposit_cash_thb(?, ?, ?)";
+      }
+      else if (money_method === 'withdrawal') { 
+        var query = "CALL withdraw_cash_thb(?, ?, ?)";
+      } else {
+        return res.status(400).json({ error: 'Invalid money_method value' });
+      }
+      
+      db.query(query, [id, amount_thb, transaction_date], (err, results) => {
+        console.log(amount_thb);
         if (err) {
           return res.status(500).json({ error: 'Database query failed', details: err });
         }
@@ -221,6 +131,58 @@ router.delete('/account/:id', (req, res) => {
   });
 });
 
+router.get('/account/:id/summary', async (req, res) => {
+  if (!req.user || !req.user.username) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const id = req.params.id;
+
+  try {
+    const q = (sql, params) =>
+      new Promise((resolve, reject) => {
+        db.query(sql, params, (err, results) => {
+          if (err) reject(err);
+          else resolve(results);
+        });
+      });
+
+    const summery = {};
+
+    // 1
+    let r1 = await q(`CALL Calc_Current_Asset_Holdings(?, @asset_thb, @asset_usd); SELECT @asset_thb AS asset_thb, @asset_usd AS asset_usd;`, [id]);
+    summery.total_asset_thb = r1[1][0].asset_thb;
+    summery.total_asset_usd = r1[1][0].asset_usd;
+
+    // 2
+    let r2 = await q(`CALL Calc_Total_Cash_Deposit_THB(?, @total_deposit); SELECT @total_deposit AS total_deposit_thb;`, [id]);
+    summery.total_deposit_thb = r2[1][0].total_deposit_thb;
+
+    // 3
+    let r3 = await q(`CALL Calc_Total_Cash_Withdrawal_THB(?, @total_withdrawal); SELECT @total_withdrawal AS total_withdrawal_thb;`, [id]);
+    summery.total_withdrawal_thb = r3[1][0].total_withdrawal_thb;
+
+    // 4
+    let r4 = await q(`CALL Calc_All_Taxable(?, @total_taxable); SELECT @total_taxable AS total_taxable_usd;`, [id]);
+    summery.total_taxable_usd = r4[1][0].total_taxable_usd;
+
+    // 5
+    let r5 = await q(
+      `CALL Calc_Total_Deductions(?, @total_deduction_thb, @total_deduction_usd);
+       SELECT @total_deduction_thb AS total_deduction_thb, @total_deduction_usd AS total_deduction_usd;`,
+      [id]
+    );
+    summery.total_deduction_thb = r5[1][0].total_deduction_thb;
+    summery.total_deduction_usd = r5[1][0].total_deduction_usd;
+
+    return res.status(200).json(summery);
+
+  } catch (err) {
+    return res.status(500).json({ error: "Database query failed", details: err });
+  }
+});
+
+
 router.get('/account/:id/transaction', (req, res) => {
   if (!req.user || !req.user.username) {
     return res.status(401).json({ error: 'Unauthorized' });
@@ -240,25 +202,25 @@ router.get('/account/:id/transaction', (req, res) => {
   }
 
   if(security_type == 'trade_us') {
-    var query_with_limit = 'SELECT transaction_type, ticker_symbol, unit, unit_price, gross_amount_usd, transaction_date, fee FROM transaction_trade_us t INNER JOIN securities s ON t.stock_id = s.securities_id INNER JOIN account a ON a.id = s.account_id WHERE a.username = ? AND account_id = ?;';
+    var query_with_limit = 'SELECT transaction_id, transaction_type, ticker_symbol, unit, unit_price, gross_amount_usd, transaction_date, fee, vat FROM transaction_trade_us t INNER JOIN securities s ON t.stock_id = s.securities_id INNER JOIN account a ON a.id = s.account_id WHERE a.username = ? AND account_id = ?;';
     
     if (queryLimit > 0) {
-      query_with_limit = 'SELECT transaction_type, ticker_symbol, unit, unit_price, gross_amount_usd, transaction_date, fee FROM transaction_trade_us t INNER JOIN securities s ON t.stock_id = s.securities_id INNER JOIN account a ON a.id = s.account_id WHERE a.username = ? AND account_id = ? LIMIT ?;';
+      query_with_limit = 'SELECT transaction_id, transaction_type, ticker_symbol, unit, unit_price, gross_amount_usd, transaction_date, fee, vat FROM transaction_trade_us t INNER JOIN securities s ON t.stock_id = s.securities_id INNER JOIN account a ON a.id = s.account_id WHERE a.username = ? AND account_id = ? LIMIT ?;';
     }
 
   } else if (security_type == 'trade_th') {
-    var query_with_limit = 'SELECT transaction_type, ticker_symbol, unit, unit_price, gross_amount_thb, transaction_date, fee FROM transaction_trade_th t INNER JOIN securities s ON t.stock_id = s.securities_id INNER JOIN account a ON a.id = s.account_id WHERE a.username = ? AND account_id = ?;';
+    var query_with_limit = 'SELECT transaction_id, transaction_type, ticker_symbol, unit, unit_price, gross_amount_thb, transaction_date, fee, vat FROM transaction_trade_th t INNER JOIN securities s ON t.stock_id = s.securities_id INNER JOIN account a ON a.id = s.account_id WHERE a.username = ? AND account_id = ?;';
     
     if (queryLimit > 0) {
-      query_with_limit = 'SELECT transaction_type, ticker_symbol, unit, unit_price, gross_amount_thb, transaction_date, fee FROM transaction_trade_th t INNER JOIN securities s ON t.stock_id = s.securities_id INNER JOIN account a ON a.id = s.account_id WHERE a.username = ? AND account_id = ? LIMIT ?;';
+      query_with_limit = 'SELECT transaction_id, transaction_type, ticker_symbol, unit, unit_price, gross_amount_thb, transaction_date, fee, vat FROM transaction_trade_th t INNER JOIN securities s ON t.stock_id = s.securities_id INNER JOIN account a ON a.id = s.account_id WHERE a.username = ? AND account_id = ? LIMIT ?;';
     }
   } else if (security_type == 'exchange') {
 
     //transaction_type, amount_thb, amount_usd, exchange_rate, transaction_date, account_cash_id
-    var query_with_limit = 'SELECT transaction_type, t.amount_thb, t.amount_usd, exchange_rate, transaction_date FROM transaction_exchange t INNER JOIN cash c ON t.account_cash_id = c.account_id INNER JOIN account a ON a.id = c.account_id WHERE a.username = ? AND account_id = ?;';
+    var query_with_limit = 'SELECT transaction_id, transaction_type, t.amount_thb, t.amount_usd, exchange_rate, transaction_date FROM transaction_exchange t INNER JOIN cash c ON t.account_cash_id = c.account_id INNER JOIN account a ON a.id = c.account_id WHERE a.username = ? AND account_id = ?;';
     
     if (queryLimit > 0) {
-      query_with_limit = 'SELECT transaction_type, t.amount_thb, t.amount_usd, exchange_rate, transaction_date FROM transaction_exchange t INNER JOIN cash c ON t.account_cash_id = c.account_id INNER JOIN account a ON a.id = c.account_id WHERE a.username = ? AND account_id = ? LIMIT ?;';
+      query_with_limit = 'SELECT transaction_id, transaction_type, t.amount_thb, t.amount_usd, exchange_rate, transaction_date FROM transaction_exchange t INNER JOIN cash c ON t.account_cash_id = c.account_id INNER JOIN account a ON a.id = c.account_id WHERE a.username = ? AND account_id = ? LIMIT ?;';
     }
   } else {
     return res.status(400).json({ error: 'Invalid security_type parameter' });
@@ -272,22 +234,31 @@ router.get('/account/:id/transaction', (req, res) => {
     });
 });
 
-// router.post('/account/:id/transaction/exchange', (req, res) => {
-//   // Handle exchange transaction creation
-//   const { transaction_type, amount, exchange_rate } = req.body;
+router.post('/account/:id/transaction/exchange', (req, res) => {
+  // Handle exchange transaction creation
+  const { transaction_type, amount_thb, amount_usd, exchange_rate, transaction_date } = req.body;
+  const id = req.params.id;
 
-//   if (!transaction_type || !amount || !exchange_rate) {
-//     return res.status(400).json({ error: 'Missing required fields' });
-//   }
+  if (!transaction_type || !amount_thb || !amount_usd || !exchange_rate || !transaction_date) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
 
-//   const query = 'INSERT INTO transaction_exchange (account_id, transaction_type, amount, exchange_rate) VALUES (?, ?, ?, ?)';
-//   db.query(query, [req.params.id, transaction_type, amount, exchange_rate], (err, results) => {
-//     if (err) {
-//       return res.status(500).json({ error: 'Database query failed' });
-//     }
-//     res.status(201).json({ message: 'Exchange transaction created successfully' });
-//   });
-// });
+  isAccountOwnByUser(id, req.user.username, (err, isOwner) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database query failed', details: err });
+    }
+    if (!isOwner) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    db.query('INSERT INTO transaction_exchange (transaction_type, amount_thb, amount_usd, exchange_rate, transaction_date, account_cash_id) VALUES (?, ?, ?, ?, ?, ?)', [transaction_type, amount_thb, amount_usd, exchange_rate, transaction_date, id], (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database query failed', details: err });
+      }
+      res.status(201).json({ message: 'Exchange transaction created successfully' });
+    });
+  });
+});
 
 router.post('/account/:id/transaction/trade_us', (req, res) => {
   // Handle US trade transaction creation
@@ -315,30 +286,81 @@ router.post('/account/:id/transaction/trade_us', (req, res) => {
   });
 });
 
-router.post('/query', (req, res) => {
-  const { sql } = req.body;
-  db.query(sql, (err, result) => {
-    if (err) return res.status(400).json({ error: err.message });
-    res.json(result);
+router.post('/account/:id/transaction/trade_th', (req, res) => {
+  // Handle TH trade transaction creation
+  const { transaction_type, ticker_symbol, unit, unit_price, gross_amount_thb, fee, vat, transaction_date, securities_type, mutual_fund_type } = req.body;
+  const id = req.params.id;
+
+  if (!transaction_type || !ticker_symbol || !unit || !unit_price || !gross_amount_thb || !fee || !vat || !transaction_date) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  isAccountOwnByUser(id, req.user.username, (err, isOwner) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database query failed', details: err });
+    }
+    if (!isOwner) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    //p_account_id INT UNSIGNED, IN p_transaction_type VARCHAR(4), IN p_stock_symbol VARCHAR(30), IN p_unit DECIMAL(14, 6), IN p_unit_price DECIMAL(14, 2), IN p_gross_amount DECIMAL(14, 2), IN p_fee DECIMAL(8, 2), IN p_vat DECIMAL(8, 2), IN p_transaction_date DATETIME,IN p_STORMF VARCHAR(10),IN p_RMFORESG VARCHAR(10)
+
+    db.query('CALL Add_transaction_trade_th(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [id, transaction_type, ticker_symbol, unit, unit_price, gross_amount_thb, fee, vat, transaction_date, securities_type, mutual_fund_type], (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database query failed', details: err });
+      }
+      res.status(201).json({ message: 'TH trade transaction created successfully' });
+    });
   });
 });
 
-// router.post('/account/:id/transaction/trade_th', (req, res) => {
-//   // Handle TH trade transaction creation
-//   const { transaction_type, ticker_symbol, unit, unit_price, gross_amount_thb, fee, vat, transaction_date, securities_type } = req.body;
+router.delete('/account/transaction/:sec_type/:transaction_id', (req, res) => {
+  if (!req.user || !req.user.username) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
 
-//   if (!transaction_type || !ticker_symbol || !unit || !unit_price || !gross_amount_thb || !fee || !vat || !transaction_date || !securities_type) {
-//     return res.status(400).json({ error: 'Missing required fields' });
-//   }
+  const secType = req.params.sec_type;
+  const transactionId = req.params.transaction_id;
 
-//   const query = 'INSERT INTO transaction_trade_th (account_id, transaction_type, ticker_symbol, unit, unit_price, gross_amount_thb, fee, vat, transaction_date, securities_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-//   db.query(query, [req.params.id, transaction_type, ticker_symbol, unit, unit_price, gross_amount_thb, fee, vat, transaction_date, securities_type], (err, results) => {
-//     if (err) {
-//       return res.status(500).json({ error: 'Database query failed' });
-//     }
-//     res.status(201).json({ message: 'TH trade transaction created successfully' });
-//   });
-// });
+  // get account id from transaction id
+  let getAccountQuery = '';
+  if (secType === 'trade_us') {
+    getAccountQuery = 'SELECT s.account_id FROM transaction_trade_us t INNER JOIN securities s ON t.stock_id = s.securities_id INNER JOIN account a ON a.id = s.account_id WHERE t.transaction_id = ? AND a.username = ?';
+  } else if (secType === 'trade_th') {
+    getAccountQuery = 'SELECT s.account_id FROM transaction_trade_th t INNER JOIN securities s ON t.stock_id = s.securities_id INNER JOIN account a ON a.id = s.account_id WHERE t.transaction_id = ? AND a.username = ?';
+  } else if (secType === 'exchange') {
+    getAccountQuery = 'SELECT c.account_id FROM transaction_exchange t INNER JOIN cash c ON t.account_cash_id = c.account_id INNER JOIN account a ON a.id = c.account_id WHERE t.transaction_id = ? AND a.username = ?';
+  } else {
+    return res.status(400).json({ error: 'Invalid security type' });
+  }
+
+  db.query(getAccountQuery, [transactionId, req.user.username], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database query failed', details: err });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'Transaction not found or does not belong to user' });
+    }
+
+    const accountId = results[0].account_id;
+
+    let deleteQuery = '';
+    if (secType === 'trade_us') {
+      deleteQuery = 'DELETE FROM transaction_trade_us WHERE transaction_id = ?';
+    } else if (secType === 'trade_th') {
+      deleteQuery = 'DELETE FROM transaction_trade_th WHERE transaction_id = ?';
+    } else if (secType === 'exchange') {
+      deleteQuery = 'DELETE FROM transaction_exchange WHERE transaction_id = ?';
+    }
+
+    db.query(deleteQuery, [transactionId], (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database query failed', details: err });
+      }
+      res.status(200).json({ message: 'Transaction deleted successfully' });
+    });
+  });
+});
 
 function isAccountOwnByUser(accountId, username, callback) {
   db.query('SELECT * FROM account WHERE id = ? AND username = ?', [accountId, username], (err, results) => {

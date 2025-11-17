@@ -19,8 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
       // Populate the form fields with the account data
       document.getElementById('accountName').value = account.name;
       document.getElementById('accountTaxYear').value = account.tax_year;
-      document.getElementById('cashAmountTHB').value = account.amount_thb;
-      document.getElementById('cashAmountUSD').value = account.amount_usd;
+      document.getElementById('accountCashTHB').value = account.amount_thb;
+      document.getElementById('accountCashUSD').value = account.amount_usd;
       
       hideNotification(noti);
     })
@@ -38,6 +38,9 @@ document.getElementById("saveaccount").addEventListener("click", () => {
     });
     return;
   }
+
+  const formattedDateTime = document.getElementById("dateInput").value.replace('T', ' ') + ':00';
+
   fetch(`/api/user/account/${id}`, {
     method: 'PUT',
     credentials: 'include',
@@ -47,12 +50,18 @@ document.getElementById("saveaccount").addEventListener("click", () => {
     body: JSON.stringify({
       name: document.getElementById("accountName").value,
       tax_year: document.getElementById("accountTaxYear").value,
-      amount_thb: parseFloat(document.getElementById("cashAmountTHB").value) || 0,
-      amout_usd: parseFloat(document.getElementById("cashAmountUSD").value) || 0
+      money_method: document.getElementById("depwith").value,
+      amount_thb: document.getElementById("depwithAmount").value,
+      transaction_date: formattedDateTime,
     })
   })
   .then(response => {
     if (!response.ok) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to save account. Please try again.'
+      });
       throw new Error('Failed to update account');
     }
     return response.json();
@@ -132,4 +141,8 @@ document.getElementById("deleteaccount").addEventListener("click", () => {
       });
     }
   });
+});
+
+document.getElementById("back").addEventListener("click", () => {
+  window.location.href = '/dashboard/account.html';
 });
