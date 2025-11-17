@@ -277,7 +277,7 @@ router.post('/account/:id/transaction/trade_us', (req, res) => {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
-    db.query('CALL Add_transaction_trade_us(?, ?, ?, ?, ?, ?, ?, ?, ?)', [id, transaction_type, stock_symbol, unit, unit_price, gross_amount_usd, fee, vat, transaction_date], (err, results) => {
+    db.query('CALL Add_transaction_trade_us(?, ?, ?, ?, ?, ?, ?, ?, ?)', [id, transaction_type, stock_symbol, unit, unit_price, gross_amount_usd, Float16Array(fee), Float16Array(vat), transaction_date], (err, results) => {
       if (err) {
         return res.status(500).json({ error: 'Database query failed', details: err });
       }

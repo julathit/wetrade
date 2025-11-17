@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terminal | WeTAX!</title>
+    <title>Admin Dashboard | WeTAX!</title>
     <base href="/dashboard/">
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -16,37 +16,46 @@
                 <a href="transaction.html">Transactions</a>
                 <a href="account.html">Accounts</a>
                 <a href="profile.html">Profile</a>
-                <a href="admin.html">Admin</a>
-                <a href="terminal.html" class="active">superadmin</a>
+                <a id="adminLink" href="admin.html" class="hidden">Admin</a>
+                <a id="terminalLink" href="terminal.html" class="hidden active">superadmin</a>
                 <a href="index.html" id="logoutBtn">Logout</a>
             </nav>
         </aside>
 
         <main class="main-content">
-            <header class="topbar">
-                <h1>System Terminal</h1>
-            </header>
+            <!-- <header class="topbar">
+                <h1>Admin Dashboard: Users Overview</h1>
+                <select id="transaction_option" class="dropdown hidden">
+                    <option value="trade_us" selected>US Assets</option>
+                    <option value="trade_th">TH Assets</option>
+                    <option value="exchange">Exchange</option>
+                </select>
+            </header> -->
 
-            <section id="admin-terminal">
-                <div class="terminal-container">
-                    <div id="terminalOutput" class="terminal-output">
-                        <p>WeTAX Terminal v1.0</p>
-                    </div>
-
-                    <div class="terminal-input-area">
-                        <div class="terminal-input-box">
-                            <textarea id="terminalInput" class="terminal-input" rows="5" autofocus></textarea>
-                        </div>
-                        
-                        <button id="sendBtn" class="send-button">Send</button>
-                    </div>
-                    </div>
+            <section id="user-overview">
+                <h2>All Users</h2>
+                <table id="userTable">
+                    <colgroup>
+                        <col style="width: 40%;">
+                        <col style="width: 35%;">
+                        <col style="width: 25%;">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </section>
         </main>
     </div>
     <script src="js/terminal.js"></script> 
     <script src="js/main.js"></script>
     <script src="js/utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <div id="toast-container"></div>
 </body>
 </html>
